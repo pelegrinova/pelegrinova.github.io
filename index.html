@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>Segmenter</title>
+        <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico" />
+        <!-- Font Awesome icons (free version)-->
+        <script src="https://use.fontawesome.com/releases/v5.13.0/js/all.js" crossorigin="anonymous"></script>
+        <!-- Google fonts-->
+        <link href="https://fonts.googleapis.com/css?family=Saira+Extra+Condensed:500,700" rel="stylesheet" type="text/css" />
+        <link href="https://fonts.googleapis.com/css?family=Muli:400,400i,800,800i" rel="stylesheet" type="text/css" />
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="css/styles.css" rel="stylesheet" />
+    </head>
+    <body id="page-top">
+        <!-- Navigation-->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top" id="sideNav">
+            <a class="navbar-brand js-scroll-trigger" href="#page-top">
+                <span class="d-block d-lg-none">Segmenter</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav">
+                    <li class="nav-item mb-3"><a class="nav-link js-scroll-trigger" href="#segmenter">About</a></li>
+                    <li class="nav-item"><a class="nav-link js-scroll-trigger" href="#phonological_word">phonological word</a></li>
+					<li class="nav-item"><a class="nav-link js-scroll-trigger" href="#morpheme">morpheme</a></li>
+					<li class="nav-item"><a class="nav-link js-scroll-trigger" href="#sentence">sentence</a></li>
+                    <li class="nav-item"><a class="nav-link js-scroll-trigger" href="#clause">clause</a></li>
+                    <li class="nav-item mb-3"><a class="nav-link js-scroll-trigger" href="#clausal_phrase">clausal phrase</a></li>
+					<li class="nav-item"><a class="nav-link js-scroll-trigger" href="#references">references</a></li>
+                    <li class="nav-item"><a class="nav-link js-scroll-trigger" href="#contacts">contacts</a></li>
+                </ul>
+            </div>
+        </nav>
+        <!-- Page Content-->
+        <div class="container-fluid p-0">
+            <!-- About-->
+            <section class="resume-section" id="segmenter">
+                <div class="resume-section-content">
+                    <h1 class="mb-0">
+                       
+                        <span class="text-primary">Segmenter<span>
+                    </h1>
+                    <div class="subheading mb-2">
+                        Automatic Czech text segmentation
+                        <a href="mailto:name@email.com"></a>
+                    </div>
+					<div class="subheading mb-5">
+                        <b>This project is supported by the grant of the Moravian-Silesian Region: Podpora talentovaných studentů doktorského studia na Ostravské univerzitě III (07359/2019/RRC).</b>
+                    </div>
+                    <p class="lead mb-2", style="text-align: justify">This website provides several programs (scripts) for automatic text segmentation into chosen language units: morpheme, phonological word, syntactic phrase, clause, and sentence. Each section is devoted to a single unit – the theoretical background of operationalisation is described, and the scripts for segmentation are available for download.
+					<br></br>
+					<p style="text-align: justify"> <b>Technical note:</b>
+					<br> Segmentation scripts are written in Python (for morpheme, syntactic phrase, clause, and sentence) and in R language (for phonological word). For using the Python programs, insert into the script a) the name of the file  meant for segmentation (in txt format and with UTF-8 encoding), and b) the name of the file for saving the results of segmentation. The R script will ask you to choose the file from your PC (use txt format and ANSI encoding) and display segmentation results in the command line or your programming environment.</br>
+					</p>
+                </div>
+            </section>
+			<hr class="m-0" />
+            <!-- Education-->
+            <section class="resume-section" id="phonological_word">
+                <div class="resume-section-content">
+                    <h2 class="mb-2">Phonological word</h2>
+                    <div class="d-flex flex-column flex-md-row justify-content-between mb-5">
+                        <div class="flex-grow-1">
+                            <p class="lead mb-5", style="text-align: justify">The segmentation rules for phonological words are developed based on the work of Palková (2004). For the text-to-speech synthesis, she established a system of formal rules for defining the boundaries of a phonological word in written text. The presented program is based on these rules. To illustrate, I will give here some examples of how the phonological word boundaries are determined; Palkova's rules are described in detail in the paper: 
+							<br> <br></br> <b>Palková, Z. (2004). The set of phonetic rules as a basis for the prosodic component of an automatic TTS synthesis in Czech. In: Z. Palková & J. Janíková (Eds.), Phonetica Pragensia 10 (pp. 33–46). Praha: Karolinum.</b></br>
+							<p class="lead mb-2", style="text-align: justify">
+							<b>Examples of segmentation </b>(boundaries of relevant phonological words are marked by hash sign): 
+							<blockquote>1) Monosyllabic preposition is joined to the following word:
+								<br>&#160 &#160 &#160 &#160 &#160 Přišel #pod okno.# &nbsp; 'He came under the window.'</br></blockquote>
+							<blockquote>2)	Monosyllabic word at the beginning of a clause is joined to the following word:
+								<br>&#160 &#160 &#160 &#160 &#160 #On přišel# pozdě. &nbsp; 'He came late.'</br></blockquote>
+							<blockquote>4)	Polysyllabic words standing next to each other form an independent phonological word:
+								<br>&#160 &#160 &#160 &#160 &#160 #Přišel# #pozdě# #večer.# &nbsp; 'He came late in the evening.'</blockquote>
+							<blockquote>3)	Two monosyllabic words between polysyllabic words:
+							<br>&#160 &#160 &#160 a)	if the preceding unit contains 2-4 syllables, both monosyllabic words are joined to the precedeing unit:</br>
+							&#160 &#160 &#160 &#160 &#160 &#160 #Při-šel jsem tam# pozdě. &nbsp; 'I came there late.'
+							<br>&#160 &#160 &#160 b)	if the preceding unit contains 5 or more syllables, the monosyllabic words form one phonological word together:</br>
+							&#160 &#160 &#160 &#160 &#160 &#160 Ne-za-mý-šle-li #jsme tam# koupit pivo. &nbsp; 'We did not intend to buy a beer there.'</blockquote>
+							<blockquote>5)	etc.</blockquote></p>
+							<p class="lead mb-2", style="text-align: justify">
+							<br></br>
+							<b>Before segmentation into the phonological words, the text must be preprocessed based on following rules</b>:
+
+							<blockquote>a) only the following punctuation marks can occur in the text: full stop, comma, colon, exclamation mark, and question mark;</blockquote>
+							<blockquote>b) only letters from Czech alphabet can occur;</blockquote>
+							<blockquote>c) all digits must be removed or transcribed;</blockquote>
+							<blockquote>d) no stand-alone consonant except for non-syllabic prepositions <i>k</i>, <i>s</i>, <i>v</i>, <i>z</i> can occur in the text;</blockquote>
+							<blockquote>f) no double spaces can occur in the text;</blockquote>
+							<blockquote>g) no punctuation marks standing next to each other can occur (such as <i>...</i>);</blockquote>
+							<blockquote>h) the punctuation mark cannot be preceded by a space.</blockquote>
+							<br> <b> Program for phonological word segmentation: <a href="phonological_words_segmentation.zip" ><i>download script</i></a></b></br>
+							</p>       
+                    </div>
+                </div>
+				</div>
+            </section>
+            <hr class="m-0" />
+            <!-- Experience-->
+            <section class="resume-section" id="morpheme">
+                <div class="resume-section-content">
+                    <h2 class="mb-2">Morpheme</h2>
+                    <div class="d-flex flex-column flex-md-row justify-content-between mb-5">
+                        <div class="flex-grow-1">
+                            <p class="lead mb-5", style="text-align: justify"> The morphological segmentation applied is based on the retrograde morphemic dictionary of Czech (Slavíčková, 1975). However, her dictionary contains only dictionary forms of words (i.e. lemmas), and since Czech is an inflectional language, also rules for inflected word forms are needed. Moreover, there are several groups of words (proper names, pronouns, particles, interjections) which require a special approach. The segmentation of inflected word forms of nouns, adjectives, numerals, and verbs mostly follows the grammar of Czech by Komárek et al. (1986). The segmentation rules from Komárek et al. (1986) were modified or specified as follows (in more detail, these rules are described in the dissertation thesis by Pelegrinová (to appear)).
+							<p class="lead mb-5", style="text-align: justify">
+							<b>Segmentation rules</b>: </br>
+							<br>1)	For nouns and adjectives, markers of grammatical cases were reconsidered in order to avoid a high degree of allomorphy. For example, the morpheme <i>ch</i> serves as the marker of the locative plural in this segmentation approach, while according to Komárek et al. (1986), the locative plural is marked by six allomorphs: <i>-ech</i>, <i>-ích</i>, <i>-ách</i>, <i>-ich</i>, <i>-ěch</i>, <i>-ch</i>.  The vowel which precedes the morpheme <i>-ch</i> in the locative plural (if there is any) is considered a separate morpheme (in Komárek (2016), it is called a connecteme). Other grammatical cases are treated analogously.</br>
+							<br>2)	Czech pronouns can be inflected, and at the same time they constitute a closed class containing a limited number of words. Therefore, there are less options for inter-paradigmatic comparisons (within this class as well as with other nominal parts of speech, i.e. nouns and adjectives). Consequently, the segmentation rules for pronouns found in grammars are often more ambiguous than for other parts of speech. Led again by the motivation to reduce allomorphy, I decided to apply a deeper (i.e. more detailed) morphological segmentation. This approach is demonstrated on the example of the instrumental plural form <i>našimi</i> of the first person plural possessive pronoun <i>náš</i> ‘our’. First, the inflectional morpheme is separated: <i>naš-imi</i>. Then, applying the above mentioned rules, <i>-mi</i> is considered the marker of the instrumental plural, and <i>-i-</i> which precedes it a connecteme: <i>naš-i-mi</i>. But in Czech there is also the instrumental plural affix <i>-ma</i>, contrasting with <i>-mi</i> (<i>našim-a</i> vs. <i>našim-i</i>). This contrast leads to the segmentation into <i>naš-i-m-i</i>. Next, the inter-paradigmatic comparison with the second person plural possessive pronoun <i>váš</i> ‘your’ results in the segmentation <i>n-aš-i-m-i</i>, as these two pronouns contrast only in their consonant roots <i>n-</i> vs. <i>v-</i>. The final step is carried out on the basis of inter- and intra-paradigmatic comparisons of inflected forms of the possessive pronouns <i>náš</i> ‘our’, <i>váš</i> ‘your’ with the corresponding (non-possessive) personal pronouns <i>my</i> ‘we’, <i>vy</i> ‘you’. Pronouns <i>my</i> and <i>vy</i> have stems <i>ná-</i> and <i>vá-</i>, respectively, in all cases with the exception of the nominative form. Therefore the final segmentation is <i>n-a-š-i-m-i</i>.</br>
+							<br>3)	In proper names, only inflectional affixes and productive derivational suffixes are segmented. The remaining stems are not analysed morphologically here (e.g. nominative singular <i>Prah-a</i> ‘Prague’, genitive singular <i>Prah-y</i>; <i>Pelegrin-ov-á</i> – the female version of a surname with the suffix <i>-ov-</i>; <i>Fin-sk-o</i> ‘Finland’ etc.).</br>
+							<br>4)	Particles and interjections in Czech are uninflected parts of speech with an ambiguous delimitation and no consensus concerning their morphological segmentation. Only those particles and interjections which are morphologically transparent are segmented.</br>
+							<br> <b> Program for morphological segmentation: <a href="morphological_segmentation.zip" ><i>download script</i></a></b></br>
+							</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+			<hr class="m-0" />
+            <!-- Skills-->
+            <section class="resume-section" id="sentence">
+                <div class="resume-section-content">
+                    <h2 class="mb-2">Sentence</h2>
+                    <p class="lead mb-2", style="text-align: justify">
+					In this segmentation, syntactical units are determined based on the annotation of the project <a href="https://universaldependencies.org/">Universal dependencies</a> (UD) which aims for universal and consistent annotation of grammar (parts of speech, morphological features, and syntactic dependencies) across languages. For UD annotation, the tool UDPipe is used. UDPipe provides automatic tokenization, tagging, lemmatization, and dependency parsing in the CoNLL-U format. Different UD treebanks are used for training particular UDPipe models – the model used in this approach is trained on Czech-PDT UD treebank 2. A sentence is delimited automatically by the UDPipe. Following the UD annotation rules, each sentence is represented by a dependency tree “where exactly one word is the head of the sentence, dependent on a notional ROOT and all other words are dependent on another word in the sentence”. (Universal Dependencies, 2022) The “notional root” is the technical root depicted by the UD annotation which is not included in the segmentation. The determination of dependencies between all other words respects the goal of the UD – to provide parsing that can be accomplished across languages. Thus, the main principle is to set the content words as heads in the tree, while function words are treated mainly as the so-called leaves, i.e., the ending nodes of the tree. The UD annotation also treats the punctuation marks as individual nodes, but these are not included in this segmentation. For illustration, in the sentence <i>Můj králík žere noviny na gauči.</i> ‘My rabbit is eating newspaper on the sofa.’ in the figure below, the basic dependency relations are as follows: the finite content verb <i>žere</i> ‘eating’ is the head of the sentence (word root) – depicted in the red colour; three content words <i>králík</i> ‘rabbit’, <i>noviny</i> ‘newspaper’, <i>gauči</i> ‘sofa’ depend on the root – depicted in the green colour; and two function words <i>můj</i> ‘my’ and <i>na</i> ‘on’ are the end nodes (leaves) – depicted in the blue colour. 
+					</p>
+					<ul><ul><ul><ul><img src="rabbit.png" width="300" height="300"></ul></ul></ul></ul>
+					<p class="lead mb-2", style="text-align: justify">
+					Another relevant consequence of the primacy of content word is the parsing of auxiliary and copula verbs. The auxiliary verb <i>být</i> ‘to be’ is treated as a function word. In the example from the figure below <i>Našla jsem wombata.</i> ‘I found a wombat.’, the content verb <i>našla</i> ‘found’ is the head (depicted in the red colour), while the auxiliary verb <i>jsem</i> depends on it (depicted in the blue colour).
+					</p>
+					<ul><ul><ul><ul><img src="wombat.png" width="260" height="220"></ul></ul></ul></ul>
+					<p class="lead mb-2", style="text-align: justify">
+					Similarly, the copula verb <i>být</i> ‘to be’ depends on the nominal head in the nominal predicate. The nominal predicate of the sentence from the figure below <i>Myš je chlupatá.</i> ‘The mouse is furry.’ consist of the nominal head <i>chlupatá</i> ‘furry’ (depicted in the red colour) and dependent auxiliary verb <i>je</i> (depicted in the blue colour).  
+					</p>
+					<ul><ul><ul><ul><img src="mouse.png" width="260" height="220"></ul></ul></ul></ul>
+					<p class="lead mb-2", style="text-align: justify">
+					On the other hand, the modal predicates are treated as regular content words: the modal verb (bearing the grammatical meanings) is considered the head node, and the other part of the predicate (the infinitive verb bearing the lexical meaning) is its dependent. The figure below shows the example of sentence with modal predicate <i>Wombat musí žít v Austrálii.</i> ‘A wombat must live in Australia.’ The head of the predicate is the modal verb <i>musí</i> ‘must’ (depicted in the red colour), on which the infinitive verb <i>žít</i> ‘to live’ hangs (depicted in the orange colour). The non-verbal sentences are parsed as a dependency tree in the UD annotation. Nevertheless, in the frame of this segmentation, only sentences with finite verbs are taken into account.</p>
+					<ul><ul><ul><ul><img src="wombat_australy.png" width="260" height="350"></ul></ul></ul></ul>
+					<p class="lead mb-2", style="text-align: justify">
+					<br> <b> Program for sentence segmentation: <a href="sentence_segmentation.zip" ><i>download script</i></a></b></br>
+                    </p>
+				</div>
+			</section>
+			<hr class="m-0" />
+            <!-- Interests-->
+            <section class="resume-section" id="clause">
+                <div class="resume-section-content">
+                    <h2 class="mb-2">Clause</h2>
+                    <p class="lead mb-2", style="text-align: justify">
+					A clause is determined by a presence of a finite verb (which constitutes the head of a clause) and includes all words that directly or indirectly depend on the head verb. To be more accurate, the syntactic structure containing a finite verb is referred to as a finite clause since it is also possible to distinguish non-finite clauses (structures with infinitive verb form) or verbless clauses (structures without any verb). (Panevová & Karlík, 2017) The Universal dependencies (UD) also parses verbless clauses since it covers different language strategies (for example, it is common for Russian to produce clauses without a verb in the present tense). Nevertheless, a clause is typically defined as a finite clause. The morphological UD annotation is used for identifying the finite verb. The morphological characteristic can be found in the morphological tag, which is assigned to each node in the UDPipe output. It describes universal (in the sense of UD) morphological information: a lemma (technical label - lemma), a part of speech (technical label – upostag), and a set of lexical and grammatical features (technical label – feats). Besides, language-specific morphological tagset labeled as xpostag is available for Czech data. It contains 15 positions for particular morphological property (part of speech, detailed part of speech, gender, number, etc.)  – each of these properties is represented by a unique symbol. The figure below shows the morphological tag of the word form <i>vařím</i> ‘I cook’: rectangles describe what the given position represents; if the position is occupied, the meaning of the symbol is also explained.</p>
+					<ul><ul><ul><ul><img src="morpho_tag.png" width="650" height="250"></ul></ul></ul></ul>
+					<p class="lead mb-2", style="text-align: justify">
+					For the identifying the finite verb, the first and second positions are necessary. The first position stands for the part of speech and the second position is reserved for the detailed description of the part of speech (e.g., information about the verb form). In this segmentation, the finite verb constituting the clause is considered a word that complies with three conditions simultaneously: 1) the upostag is <i>VERB</i> for verbal predicate or <i>AUX</i> for nominal predicate, 2) the first xpostag position is <i>V</i> (verb), and 3) the second xpostag is <i>B</i> (present or future form) or <i>i</i> (imperative form) or <i>p</i> (active past participle) or <i>s</i> (passive past participle). If a nominal predicate occupies the clause head, these conditions are recognised in the auxiliary verb. However, the nominal part is considered the head of a clause since it is the content word (contrary to the auxiliary verb in the function of a leaf node). Since a sentence may contain more finite verbs, i.e., more clauses, the problem of these subordinated and coordinated clauses has to be solved. The head of the subordinate clause depends on a node of the controlling clause in the UD dependency tree (the subordination is labeled). In the present segmentation, subordinate clauses are treated as individual clauses: the head, as well as the rest of the subordinate clause, is cut from the controlling clause. The figure below shows the example sentence with subordinate clause <i>Uvařila jsem čaj, který jsi mi dovezl. </i> ‘I made the tea that you brought me.’ The head of the subordinate clause <i>dovezl</i> ‘brought’ depends on its controlling word <i>čaj</i> ‘tea’– the dependency is depicted by the dashed line because the whole subordinate clause is “cut” and treated as an independent clause. The controlling clause consists of the words depicted in the red colour: <i>uvařila</i>, <i>jsem</i>, <i>čaj</i>, while the subordinate clause is composed of words depicted in the green colour <i>který</i>, <i>jsi</i>, <i>mi</i>, <i>dovezl</i>. </p>
+					<ul><ul><ul><ul><img src="tea.png" width="350" height="360"></ul></ul></ul></ul>
+					<p class="lead mb-2", style="text-align: justify">
+					The coordinated clauses are treated asymmetrically in UD: the first conjunct is considered a head, and all other coordinated conjuncts are connected to it via the relation with the label conj (conjunct). As can be seen in the example in the figure belos <i>Vlak jede po kolejích a loď pluje po moři.</i> ‘The train runs on rails and the ship sails on the sea.’: the first finite verb <i>jede</i> ‘runs’ is the head, while another finite verb <i>pluje</i> ‘sails’ is attached to it (depicted by the dashed line). The label conj represents the dependency relation of coordination. In this segmentation, coordinated clauses are treated identically to subordinated – particular clauses are cut and analysed as individual clauses. It means that the example sentence consists of two clauses: the first clause contains the words depicted in the red colour <i>vlak</i>, <i>jede</i>, <i>po</i>, <i>kolejích</i>; the second clause is composed of the words depicted in the green colour <i>a</i>, <i>loď</i>, <i>pluje</i>, <i>po</i>, <i>moři</i>.<ul><ul><ul><ul><img src="train_ship.png" width="350" height="360"></ul></ul></ul></ul>
+					<p class="lead mb-2", style="text-align: justify">
+					<br> <b> Program for clause segmentation: <a href="clause_segmentation.zip" ><i>download script</i></a></b></br>
+					</p>
+                </div>
+            </section>
+			<hr class="m-0" />
+            <!-- Skills-->
+            <section class="resume-section" id="clausal_phrase">
+                <div class="resume-section-content">
+                    <h2 class="mb-2">Clausal phrase</h2>
+                    <p class="lead mb-2", style="text-align: justify">
+					Phrase is a group of words depending directly or indirectly on a phrase head – the head directly depends on the predicate of a clause. The figure below shows an example sentence <i>Můj králík okusuje tvoje staré knížky a časopisy.</i> ‘My rabbit is gnawing your old books and magazines.’ The clause predicate <i>okusuje</i> is depicted in the red colour. There are two clausal phrases depending on this predicate. The first clausal phrase consists of two words depicted in the orange colour <i>králík</i> and <i>můj</i>; the second phrase is composed of the phrase head <i>knížky</i>, three words directly depending on the head <i>tvoje</i>, <i>staré</i>, <i>časopisy</i>, and the one word depending indirectly on the phrase head <i>a</i> – the whole clausal phrase is depicted in the green colour.
+					<br></br>
+					<ul><ul><ul><ul><img src="phrase.png" width="300" height="360"></ul></ul></ul></ul>
+					<br> <b> Program for phrase segmentation: <a href="phrase_segmentation.zip" ><i>download script</i></a></b></br>
+                    </p>
+            </section>
+			<hr class="m-0" />
+            <!-- Awards-->
+            <section class="resume-section" id="references">
+                <div class="resume-section-content">
+                    <h2 class="mb-5">References</h2>
+                    <p class="fa-ul mb-0">
+						<p class="lead mb-2", style="text-align: justify">
+						<ul>
+						<li>Komárek, M., Kořenský, J., Petr, J., and Veselková, J. (1986). Mluvnice češtiny. Svazek 2. Tvarosloví. Praha: Academia.</li>
+						<li>Komárek, M. (2016). Příspěvky k české morfologii. 2nd ed. Olomouc: Periplum.</li>
+						<li> Palková, Z. (2004). The set of phonetic rules as a basis for the prosodic component of an automatic TTS synthesis in Czech. In: Z. Palková & J. Janíková (Eds.), Phonetica Pragensia 10 (pp. 33–46). Praha: Karolinum.</li>
+						<li>Pelegrinová, K., Mačutek, J., & Čech, R. (2021) The Menzerath–Altmann law as the relation between lengths of words and morphemes in Czech. Jazykovedný časopis. 72(2), s. 405–415. </li>
+						<li>Slavíčková, E. (1975). Retrográdní morfematický slovník češtiny s připojenými inventárními slovníky českých morfémů kořenových, prefixálních a sufixálních. Praha: Academia.</li>
+						<li>Universal Dependencies. Universal Dependencies [online]. Copyright © 2014 [cit. 14.09.2022]. Dostupné z: <a href="https://universaldependencies.org/">https://universaldependencies.org/</a></li>
+						</ul>
+						</p>
+                </div>
+            </section>
+            <hr class="m-0" />
+            <!-- Awards-->
+            <section class="resume-section" id="contacts">
+                <div class="resume-section-content">
+                    <h2 class="mb-5">Contacts</h2>
+                    <p class="fa-ul mb-0">
+						<p class="lead mb-2", style="text-align: justify">
+						<b>Kateřina Pelegrinová</b>
+						<br>Department of Czech language, University of Ostrava</br>
+						
+						</p>
+                        <p class="lead mb-2", style="text-align: justify"> 
+						Please send any questions, comments or suggestions to: 
+						<br> <b> pelegrinovak@gmail.com </b></br>
+						</p>
+                </div>
+            </section>
+        </div>
+        <!-- Bootstrap core JS-->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js"></script>
+        <!-- Third party plugin JS-->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
+        <!-- Core theme JS-->
+        <script src="js/scripts.js"></script>
+    </body>
+</html>

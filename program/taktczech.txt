@@ -1,0 +1,2218 @@
+text<-scan(file=choose.files(), what="char", sep="")
+text<-tolower(text)
+options(max.print=100000)   #asi
+
+interpunkce <- c(",", ".", "?", "!", ":", ";", ")", "(")
+
+#vlozit carku pred "a"  
+spojka_a <- c("a")	
+for (i in 2:length(text))  
+  
+  if (i < (length(text)) && is.element(text[i], spojka_a)== TRUE && substr(text[i-1],nchar(text[i-1]),nchar(text[i-1])) != interpunkce)
+  {
+    text[i-1]<-paste(text[i-1],",",sep="")
+  }
+text
+
+#neslabicne predlozky pripojuju k nasledujicimu slovu
+predlozky_neslabicne <- c("s", "z", "k", "v")	
+for (i in 1:length(text))  
+{
+  if (i < (length(text)-1)  &  is.element(text[i], predlozky_neslabicne)== TRUE )
+  {
+    text[i]<-paste(text[i],text[i+1],sep="")
+    for (j in (i+1):(length(text)-1))
+    {
+      text[j]<-text[j+1]
+    }
+    text<-text[1:(length(text)-1)]
+  }
+}
+if (is.element(text[length(text)-1],predlozky_neslabicne) == TRUE) # kdyz je predlozka na predposlednim miste txtu, pro jistotu delame zvlast
+{
+  text[length(text)-1]<-paste(text[length(text)-1],text[length(text)],sep="")
+  text<-text[1:(length(text)-1)]
+}
+
+
+#jednoslabicne predlozky pripojuju k nasledujicimu slovu
+predlozky<-c("na", "do", "o", "za", "pro", "po", "od", "u", "při", "před", "bez", "pod",
+             "nad", "přes", "dle", "skrz", "vstříc", "de", "zpod", "in", "ad", "per", "dík", "vně", "vzdor", "ob", "via", "ex", "stran", "znad", "ke", "ve", "ze")
+for (i in 1:length(text))  
+{
+  if (i < (length(text)-1)  &  is.element(text[i], predlozky)== TRUE )
+  {
+    text[i]<-paste(text[i],text[i+1],sep="")
+    for (j in (i+1):(length(text)-1))
+    {
+      text[j]<-text[j+1]
+    }
+    text<-text[1:(length(text)-1)]
+  }
+}
+if (is.element(text[length(text)-1],predlozky) == TRUE) # kdyz je predlozka na predposlednim miste txtu, pro jistotu delame zvlast
+{
+  text[length(text)-1]<-paste(text[length(text)-1],text[length(text)],sep="")
+  text<-text[1:(length(text)-1)]
+}
+
+
+#hranice klauze   (hranice je slovo s interpunkci)
+hranice_klauze<-c(",", ".", "?", "!", ":", ";")   
+pocet_znaku<- rep(0, length(text))  #ulozi tolik nul, kolik slov - jaka je delka textu
+for (i in 1:length(text))   pocet_znaku[i]<-nchar(text[i]) #tu se nuly prepisou na delku slov vcetne interpunkce, proste pocet znaku na te pozici
+pozice_hranice_klauze<- c()
+for (i in 1:length(text)) 
+  if ( is.element(substr(text[i], pocet_znaku[i], pocet_znaku[i]), hranice_klauze)== TRUE )   
+  {
+    pozice_hranice_klauze <- c(pozice_hranice_klauze, i)		#(pocet_znaku[i], pocet_znaku[i]) znamena proste posledni pozici, je to OD-DO
+  }
+pozice_hranice_klauze
+
+
+
+#slabiky
+text_puvodni<-text  #text s interpunkci ale sloucene predlozky!
+text_puvodni<-paste(text_puvodni,collapse=" ")
+
+text_slabiczech<-text_puvodni
+text_slabiczech[length(text_slabiczech)]<-paste(text_slabiczech[length(text_slabiczech)], " ", sep="")
+text_slabiczech<-gsub("\n", " ", text_slabiczech)  #musim vlozit mezeru za posledni slovo, jinak by zustal posledni C samostatne!
+text_slabiczech<-gsub('[[:digit:]]', "", text_slabiczech) #vyhaze cislice
+text_slabiczech<-gsub("\\,|\\.|\\;|\\:|\\!|\\?|“|„|-|\\(|\\)", "", text_slabiczech)
+text_slabiczech<-gsub("\\s\\s", " ", text_slabiczech)#kdyz vyhazu cislice, zustanou mi tam dve mezery, musim to zmenit na jednu
+text_puvodni_slabiczech<-text_slabiczech #pro dalsi zpracovani - otazka, ktery puvodni tam chci - slouzene prep?
+
+
+#VYMEZENI NEDIFTONGICKYCH SPOJENI HLASEK OU
+#vymezeni NEdiftongu pro "pou" a "dou"
+text_slabiczech<-gsub("pouč", "po@uč", text_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_slabiczech<-gsub("pouka", "po@uka", text_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_slabiczech<-gsub("pouká", "po@uká", text_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_slabiczech<-gsub("poukl", "po@ukl", text_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_slabiczech<-gsub("poulič", "po@ulič", text_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_slabiczech<-gsub("poum", "po@um", text_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_slabiczech<-gsub("pouč", "po@uč", text_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_slabiczech<-gsub("poupr", "po@upr", text_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_slabiczech<-gsub("pouráž", "po@uráž", text_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_slabiczech<-gsub("pousm", "po@usm", text_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_slabiczech<-gsub("poust", "po@ust", text_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_slabiczech<-gsub("poute", "po@ute", text_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_slabiczech<-gsub("pouvaž", "po@uvaž", text_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_slabiczech<-gsub("pouzen", "po@uzen", text_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_slabiczech<-gsub("douč", "do@uč", text_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_slabiczech<-gsub("douprav", "do@uprav", text_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_slabiczech<-gsub("doužív", "do@užív", text_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_slabiczech<-gsub("douzov", "do@uzov", text_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_slabiczech<-gsub("doupřesn", "do@upřesn", text_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_slabiczech<-gsub("doudit", "do@udit", text_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_slabiczech<-gsub("doudí", "do@udí", text_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+
+
+#VYMEZENI DIFTONGICKYCH SPOJENI HLASEK EU
+#vymezeni diftongu pro "eu" - zde to musim delat obracene oproti predchozimu,
+#protoze mam seznam slov, kde je diftong, jinde neni
+# velke pismeno E znamena diftong "eu"
+text_slabiczech<-gsub("eufemism", "Efemism", text_slabiczech)
+text_slabiczech<-gsub("eufor", "Efor", text_slabiczech)
+text_slabiczech<-gsub("euro", "Ero", text_slabiczech)
+text_slabiczech<-gsub("eutan", "Etan", text_slabiczech)
+text_slabiczech<-gsub("farmaceut", "farmacEt", text_slabiczech)
+text_slabiczech<-gsub("feud", "fEd", text_slabiczech)
+text_slabiczech<-gsub("koloseu", "KolosE", text_slabiczech)
+text_slabiczech<-gsub("koreu", "korE", text_slabiczech)
+text_slabiczech<-gsub("leuk", "lEk", text_slabiczech)
+text_slabiczech<-gsub("linoleu", "linolE", text_slabiczech)
+text_slabiczech<-gsub("mauzoleu", "mauzolE", text_slabiczech)
+text_slabiczech<-gsub("muzeu", "muzE", text_slabiczech)
+text_slabiczech<-gsub("neutral", "nEtral", text_slabiczech)
+text_slabiczech<-gsub("neutrál", "nEtrál", text_slabiczech)
+text_slabiczech<-gsub("pneum", "pnEm", text_slabiczech)
+text_slabiczech<-gsub("pseudo", "psEdo", text_slabiczech)
+text_slabiczech<-gsub("terapeut", "terapEt", text_slabiczech)
+text_slabiczech<-gsub("eufon", "Efon", text_slabiczech)
+text_slabiczech<-gsub("eunuch", "Enuch", text_slabiczech)
+text_slabiczech<-gsub("eunuš", "Enuš", text_slabiczech)
+text_slabiczech<-gsub("zeugm", "zEgm", text_slabiczech)
+text_slabiczech<-gsub("jubileu", "jubilE", text_slabiczech)
+
+
+#SUBSTITUCE GRAFIKY TAK, ABY ODPOVIDALA REALIZACI HLASEK
+text_slabiczech<-gsub("ie", "ije", text_slabiczech) #typ "filozofie" na "filozofije"
+text_slabiczech<-gsub("dě", "ďe", text_slabiczech)
+text_slabiczech<-gsub("tě", "ťe", text_slabiczech)
+text_slabiczech<-gsub("ně", "ňe", text_slabiczech)
+text_slabiczech<-gsub("mě", "MŇE", text_slabiczech) #schvalne menime velikost pismen, at se to da pak identifikovat, jde o zmenu poctu pismen
+text_slabiczech<-gsub("ě", "JE", text_slabiczech)
+text_slabiczech<-gsub("x", "KS", text_slabiczech) #schvalne menime velikost pismen, at se to da pak identifikovat, jde o zmenu poctu pismen
+text_slabiczech<-gsub("ch", "X", text_slabiczech) #schvalne menime velikost pismen, at se to da pak identifikovat, jde o zmenu poctu pismen
+text_slabiczech<-gsub("q", "KW", text_slabiczech)#schvalne menime velikost pismen, at se to da pak identifikovat, jde o zmenu poctu pismen
+text_slabiczech<-gsub("ou", "O", text_slabiczech)#schvalne menime velikost pismen, at se to da pak identifikovat, jde o zmenu poctu pismen
+text_slabiczech<-gsub("au", "A", text_slabiczech)#schvalne menime velikost pismen, at se to da pak identifikovat, jde o zmenu poctu pismen
+
+
+#KLASIFIKACE KONSONANTU PODLE SONORITY
+#klasifikace konsonantu podle sonority, viz Skarnitzl et al. (2016)
+#sonory: r,l,m,n,j,ň, budu je znacit S
+#obstruenty: to ostatni, znacim C
+#text_slabiczech<-gsub("ou|au","V", text_slabiczech) #diftongy na V 
+text_slabiczech<-gsub("a|á|e|é|ě|i|í|y|ý|o|ó|u|ú|ů|E|A|O", "V", text_slabiczech) #vokaly na V
+text_slabiczech<-gsub("b|c|č|d|ď|f|g|h|k|p|ř|s|š|t|ť|v|w|z|ž|K|S|W|X","C", text_slabiczech)#obstruenty na C
+text_slabiczech<-gsub("CrC|ClC|CmC","CVC", text_slabiczech)#slabikotvorne konsonanty mezi C prevede na V
+text_slabiczech<-gsub("Cr |Cl |Cm ","CV ", text_slabiczech)#slabikotvorne konsonanty na konci slova po C prevede na V
+text_slabiczech<-gsub("m|n|j|ň|Ň|J|M","S", text_slabiczech) #sonory na S, krome r, l
+text_slabiczech<-gsub("SrS|SlS|SrC|SlC|CrS|ClS","CVC", text_slabiczech)#slabikotvorne konsonanty mezi C a S prevede na V
+text_slabiczech<-gsub("Sr |Sl ","CV", text_slabiczech)#slabikotvorne konsonanty na konci slova po S prevede na V
+text_slabiczech<-gsub("r|l","S", text_slabiczech) #neslabikotvorne r, l prevede na S
+
+
+text_slabiczech<-gsub("@", "", text_slabiczech) #vyhazu zavinace, uz nejsou potreba
+
+
+#VYMEZENI SLABICNYCH HRANIC
+#neslabicne predlozky pripojim k nasledujici slabice
+text_slabiczech<-gsub(" C "," C",text_slabiczech)
+
+#vsem slabikam dam hranici za vokalem, tj. udelam otevrene slabiky
+text_slabiczech<-gsub("V","V_",text_slabiczech)
+
+#princip sonority se realizuje na iniciale 
+text_slabiczech<-gsub("SCV","S_CV",text_slabiczech) #pokud na iniciale sonorita stoupa, rozdelim S a V
+text_slabiczech<-gsub("SCCV","S_CCV",text_slabiczech) #pokud na iniciale sonorita stoupa, rozdelim S a V
+text_slabiczech<-gsub("SCSV","S_CSV",text_slabiczech) #pokud na iniciale sonorita stoupa, rozdelim S a V
+text_slabiczech<-gsub("SCCCV","S_CCCV",text_slabiczech) #pokud na iniciale sonorita stoupa, rozdelim S a V
+text_slabiczech<-gsub("SCCSV","S_CCSV",text_slabiczech) #pokud na iniciale sonorita stoupa, rozdelim S a V
+text_slabiczech<-gsub("SCSSV","S_CSSV",text_slabiczech) #pokud na iniciale sonorita stoupa, rozdelim S a V
+
+text_slabiczech<-gsub("_S_","S_",text_slabiczech) #pripojim S k predchozi slabice
+
+#zjistit, jak je to s pripadnym narustem sonority u kody, potrebuju priklad
+
+#konsonanty, ktere stoji samostatne, pridam k vokalu - napr. sra_z
+text_slabiczech<-gsub("_C ","C ",text_slabiczech) 
+text_slabiczech<-gsub("_CC ","CC ",text_slabiczech) 
+text_slabiczech<-gsub("_CCC ","CCC ",text_slabiczech) 
+text_slabiczech<-gsub("_S ","S ",text_slabiczech) 
+text_slabiczech<-gsub("_SS ","SS ",text_slabiczech) 
+text_slabiczech<-gsub("_SSS ","SSS ",text_slabiczech) 
+text_slabiczech<-gsub("_SC ","SC ",text_slabiczech) 
+text_slabiczech<-gsub("_SSC ","SSC ",text_slabiczech)
+text_slabiczech<-gsub("_SCC ","SCC ",text_slabiczech)
+
+#tzv. pobocne slabiky opravuju tak, aby tvorily jednu slabiku "j_sem", musi to byt ale jen na zacatku slova 
+text_slabiczech<-gsub(" S_C"," SC",text_slabiczech) 
+
+#pokud chci "videt" slova a jejich slabicnou strukturu, oznacim hranice slabik v ramci slova teckou
+#text_slabiczech<-gsub("_","\\.",text_slabiczech)
+#text_slabiczech<-gsub("\\. "," ",text_slabiczech)
+#text_slabiczech<-gsub("S","C",text_slabiczech) 
+
+
+#pokud chci ziskat jen sekvence slabik, musim ale hastagovat predchozi tri radky
+text_slabiczech<-gsub("_"," ",text_slabiczech)
+text_slabiczech<-gsub("S","C",text_slabiczech) 
+
+
+#FREKVENCE TYPU SLABIK
+slab<-unlist(strsplit(text_slabiczech, " "))  # tohle je velmi tricky cast bo nevytvori vektor, ale promennou typu list! kdyz se v ni chcu pohybovat, musim dat [[1]] a pak az nejakou pozici, kteoru hledam...
+slab<-slab[slab != ""]
+freq_typy_slabik<-sort(table(slab),decreasing=TRUE)
+freq_typy_slabik
+
+#SEKVENCE DELEK SLABIK; to potrebuji k naslednemu zobrazeni jednotlivych slabik
+sequence_length<-c(nchar(slab))
+sequence_length
+
+#frekvence delek slabik
+table(sequence_length)
+
+####################
+
+#VYMEZENI SLABICNYCH HRANIC
+#pote, co jsem aplikoval principy max. incialy a sonority, vracim se k puvodnimu textu a aplikuju na nej predchozi segmentaci
+
+#OTEVRENI SOUBORU A UPRAVA TEXTU PRED SEGMENTACI
+
+text_puvodni_slabiczech<-paste(text_puvodni_slabiczech,collapse="") 
+
+#vsechna vymezeni diftongu a substituce se provedou znovu na puvodnim textu
+text_puvodni_upraveny_slabiczech<-gsub("pouč", "po@uč", text_puvodni_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_puvodni_upraveny_slabiczech<-gsub("pouka", "po@uka", text_puvodni_upraveny_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_puvodni_upraveny_slabiczech<-gsub("pouká", "po@uká", text_puvodni_upraveny_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_puvodni_upraveny_slabiczech<-gsub("poukl", "po@ukl", text_puvodni_upraveny_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_puvodni_upraveny_slabiczech<-gsub("poulič", "po@ulič", text_puvodni_upraveny_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_puvodni_upraveny_slabiczech<-gsub("poum", "po@um", text_puvodni_upraveny_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_puvodni_upraveny_slabiczech<-gsub("poupr", "po@upr", text_puvodni_upraveny_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_puvodni_upraveny_slabiczech<-gsub("pouráž", "po@uráž", text_puvodni_upraveny_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_puvodni_upraveny_slabiczech<-gsub("pousm", "po@usm", text_puvodni_upraveny_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_puvodni_upraveny_slabiczech<-gsub("poust", "po@ust", text_puvodni_upraveny_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_puvodni_upraveny_slabiczech<-gsub("poute", "po@ute", text_puvodni_upraveny_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_puvodni_upraveny_slabiczech<-gsub("pouvaž", "po@uvaž", text_puvodni_upraveny_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_puvodni_upraveny_slabiczech<-gsub("pouzen", "po@uzen", text_puvodni_upraveny_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_puvodni_upraveny_slabiczech<-gsub("douč", "do@uč", text_puvodni_upraveny_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_puvodni_upraveny_slabiczech<-gsub("douprav", "do@uprav", text_puvodni_upraveny_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_puvodni_upraveny_slabiczech<-gsub("doužív", "do@užív", text_puvodni_upraveny_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_puvodni_upraveny_slabiczech<-gsub("douzov", "do@uzov", text_puvodni_upraveny_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_puvodni_upraveny_slabiczech<-gsub("doupřesn", "do@upřesn", text_puvodni_upraveny_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_puvodni_upraveny_slabiczech<-gsub("doudit", "do@udit", text_puvodni_upraveny_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_puvodni_upraveny_slabiczech<-gsub("doudí", "do@udí", text_puvodni_upraveny_slabiczech) #pokud "ou" na slabicnem svu, dam mezi ne zavinac
+text_puvodni_upraveny_slabiczech<-gsub("eufemism", "Efemism", text_puvodni_upraveny_slabiczech)
+text_puvodni_upraveny_slabiczech<-gsub("eufor", "Efor", text_puvodni_upraveny_slabiczech)
+text_puvodni_upraveny_slabiczech<-gsub("euro", "Ero", text_puvodni_upraveny_slabiczech)
+text_puvodni_upraveny_slabiczech<-gsub("eutan", "Etan", text_puvodni_upraveny_slabiczech)
+text_puvodni_upraveny_slabiczech<-gsub("farmaceut", "farmacEt", text_puvodni_upraveny_slabiczech)
+text_puvodni_upraveny_slabiczech<-gsub("feud", "fEd", text_puvodni_upraveny_slabiczech)
+text_puvodni_upraveny_slabiczech<-gsub("koloseu", "KolosE", text_puvodni_upraveny_slabiczech)
+text_puvodni_upraveny_slabiczech<-gsub("koreu", "korE", text_puvodni_upraveny_slabiczech)
+text_puvodni_upraveny_slabiczech<-gsub("leuk", "lEk", text_puvodni_upraveny_slabiczech)
+text_puvodni_upraveny_slabiczech<-gsub("linoleu", "linolE", text_puvodni_upraveny_slabiczech)
+text_puvodni_upraveny_slabiczech<-gsub("mauzoleu", "mauzolE", text_puvodni_upraveny_slabiczech)
+text_puvodni_upraveny_slabiczech<-gsub("muzeu", "muzE", text_puvodni_upraveny_slabiczech)
+text_puvodni_upraveny_slabiczech<-gsub("neutral", "nEtral", text_puvodni_upraveny_slabiczech)
+text_puvodni_upraveny_slabiczech<-gsub("neutrál", "nEtrál", text_puvodni_upraveny_slabiczech)
+text_puvodni_upraveny_slabiczech<-gsub("pneum", "pnEm", text_puvodni_upraveny_slabiczech)
+text_puvodni_upraveny_slabiczech<-gsub("pseudo", "psEdo", text_puvodni_upraveny_slabiczech)
+text_puvodni_upraveny_slabiczech<-gsub("terapeut", "terapEt", text_puvodni_upraveny_slabiczech)
+text_puvodni_upraveny_slabiczech<-gsub("eufon", "Efon", text_puvodni_upraveny_slabiczech)
+text_puvodni_upraveny_slabiczech<-gsub("eunuch", "Enuch", text_puvodni_upraveny_slabiczech)
+text_puvodni_upraveny_slabiczech<-gsub("eunuš", "Enuš", text_puvodni_upraveny_slabiczech)
+text_puvodni_upraveny_slabiczech<-gsub("zeugm", "zEgm", text_puvodni_upraveny_slabiczech)
+text_puvodni_upraveny_slabiczech<-gsub("jubileu", "jubilE", text_puvodni_upraveny_slabiczech)
+text_puvodni_upraveny_slabiczech<-gsub("ie", "ije", text_puvodni_upraveny_slabiczech) #typ "filozofie" na "filozofije"
+text_puvodni_upraveny_slabiczech<-gsub("dě", "ďe", text_puvodni_upraveny_slabiczech)
+text_puvodni_upraveny_slabiczech<-gsub("tě", "ťe", text_puvodni_upraveny_slabiczech)
+text_puvodni_upraveny_slabiczech<-gsub("ně", "ňe", text_puvodni_upraveny_slabiczech)
+text_puvodni_upraveny_slabiczech<-gsub("mě", "MŇE", text_puvodni_upraveny_slabiczech) #schvalne menime velikost pismen, at se to da pak identifikovat, jde o zmenu poctu pismen
+text_puvodni_upraveny_slabiczech<-gsub("ě", "JE", text_puvodni_upraveny_slabiczech)
+text_puvodni_upraveny_slabiczech<-gsub("x", "KS", text_puvodni_upraveny_slabiczech) #schvalne menime velikost pismen, at se to da pak identifikovat, jde o zmenu poctu pismen
+text_puvodni_upraveny_slabiczech<-gsub("ch", "X", text_puvodni_upraveny_slabiczech) #schvalne menime velikost pismen, at se to da pak identifikovat, jde o zmenu poctu pismen
+text_puvodni_upraveny_slabiczech<-gsub("q", "KW", text_puvodni_upraveny_slabiczech)#schvalne menime velikost pismen, at se to da pak identifikovat, jde o zmenu poctu pismen
+text_puvodni_upraveny_slabiczech<-gsub("ou", "O", text_puvodni_upraveny_slabiczech)#schvalne menime velikost pismen, at se to da pak identifikovat, jde o zmenu poctu pismen
+text_puvodni_upraveny_slabiczech<-gsub("au", "A", text_puvodni_upraveny_slabiczech)#schvalne menime velikost pismen, at se to da pak identifikovat, jde o zmenu poctu pismen
+text_puvodni_upraveny_slabiczech<-gsub("@", "", text_puvodni_upraveny_slabiczech) #vyhazu zavinace, uz nejsou potreba
+
+
+
+text_bez_mezer<-gsub(" ", "", text_puvodni_upraveny_slabiczech)
+
+hranice <- rep(0, length(sequence_length)-1)
+hranice[1] <- sequence_length[1]
+for (i in 2:length(hranice)) hranice[i] <- hranice[i-1] + sequence_length[i]
+
+slabiky <- c()
+slabiky <- c(slabiky, substring(text_bez_mezer, 1, hranice[1]))
+for (i in 2:(length(sequence_length)-1)) slabiky <- c(slabiky, substring(text_bez_mezer, hranice[i-1]+1, hranice[i]))
+slabiky <- c(slabiky, substring(text_bez_mezer, hranice[length(hranice)]+1, nchar(text_bez_mezer)))
+
+#asi jeste vyhazet samostatne konsonanty, ktere zbydou napr. ve spojeni "K. Novak"
+
+
+slabiky
+paste(slabiky, collapse=" ")
+sort(table(slabiky), decreasing=TRUE)
+nchar(slabiky)
+delka_slabik_fonemy<-nchar(slabiky)
+
+##hledani hranic slov a slabik
+text_puvodni_upraveny_slabiczech<-gsub(" k ", " k", text_puvodni_upraveny_slabiczech)
+text_puvodni_upraveny_slabiczech<-gsub(" s ", " s", text_puvodni_upraveny_slabiczech)
+text_puvodni_upraveny_slabiczech<-gsub(" v ", " v", text_puvodni_upraveny_slabiczech)
+text_puvodni_upraveny_slabiczech<-gsub(" z ", " z", text_puvodni_upraveny_slabiczech)
+text_slova<-unlist(strsplit(text_puvodni_upraveny_slabiczech, " "))
+
+#slova
+kumulativni_delka_slov<-rep(0,length(text_slova)-1)
+text_slova_delky<-nchar(text_slova[1:length(text_slova)])
+text_slova_delky<-as.numeric(text_slova_delky)
+for (i in 1:length(text_slova_delky))
+{
+  kumulativni_delka_slov[i]<-sum(text_slova_delky[1:i])
+}
+kumulativni_delka_slov
+
+#slabiky
+kumulativni_delka_slabik<-rep(0,length(sequence_length))
+for (i in 1:length(sequence_length))
+{
+  kumulativni_delka_slabik[i]<-sum(sequence_length[1:i])
+}
+kumulativni_delka_slabik
+
+
+hranice_slova<-rep(0,length(text_slova_delky))
+hranice_slova<-match(kumulativni_delka_slov,kumulativni_delka_slabik)
+hranice_slova
+
+#hledam pozice,kam dat pomlcku
+hranice_slabiky<-c(1:length(sequence_length))
+hranice_slabiky<-hranice_slabiky[-hranice_slova]
+
+#vkladam pomlcky
+slabiky_pomlcky<-slabiky
+for (i in 1:length(slabiky))
+  slabiky_pomlcky[hranice_slabiky[i]]<-paste(slabiky[hranice_slabiky[i]],"-",sep="")
+
+text_slabiky<-c()
+text_slabiky<-paste(slabiky_pomlcky,collapse=" ")
+text_slabiky<-gsub("- ","-",text_slabiky)
+text_slabiky
+text_slabiky<-unlist(strsplit(text_slabiky," "))
+##konec SLABICZECHU
+
+text<-gsub("\\,|\\.|\\;|\\:|\\!|\\?|“|„|-|\\(|\\)", "", text)  #text bez interpunkce ale sloucene predlozky!
+#fon_slova<-text    to uz myslim nepotrebuju,byla to nejaka pomocna promenna jen
+
+#pocitam pocet slabik (=pocet pomlcek ve slovek + 1)
+#nacist text rozdeleny na slabiky
+#text_slabiky<-scan(file=choose.files(), what="char", sep="")
+#text_slabiky
+
+#delka slova v poctu slabik
+XX<-nchar(text_slabiky)
+YY<-nchar(text_slova)
+delka_slova_slabiky<-(XX-YY)+1
+delka_slova_slabiky_takty<-delka_slova_slabiky  #a tady pak pozdeji vlozit ty dolary
+
+
+seznam_klitik_cisty <-c("li", "jsem", "jsi", "je", "jsme", "jste", "jsou", "bych", "bys", "by", "mi", "ti", "mě", "tě", "ho", "mu", "ji", "je", "se", "si")
+
+
+##### prvni klauze textu
+klauze<-text[1:pozice_hranice_klauze[1]]     				
+text_takty<-klauze  #text_takty = odolarovany text
+
+#prozatim kazde slovo povazuju za takt
+for (i in 1:length(klauze))
+  text_takty[i]<-paste("$",klauze[i],"$", sep="")
+#kazde slovo v F pozici oznacim zavinacem bo je potrebuju odlisit
+for (i in 1:length(klauze))
+  text_takty[pozice_hranice_klauze[1]]<-paste("@",klauze[pozice_hranice_klauze[1]],"@", sep="")
+
+pocet_Fklitik<-0  
+#while cyklus funguje tak dluho,dokud splnuje podminky TRUE, zaciname od konce bo od i (coz je konec-delka
+# klauze). Pokud je na te i-pozici neco ze seznam_klitik_cisty, ulozi se do mnoziny pocet_Fklitik 1; podiva
+# se to na i-1 a to same, kdyz je tam klitikon, pripocte do pocet_Fklitik 1 atd dokud neni FALSE)
+
+i<-length(klauze) #oznacuju si pracovne delku klauze
+while
+(i > 0 & is.element(klauze[i], seznam_klitik_cisty) == TRUE) 
+{i <- i-1
+pocet_Fklitik<- pocet_Fklitik +1}
+
+### F pozice
+#pripojuju 1 klitikon z F pozice, mazu dolary
+if (pocet_Fklitik == 1 & length(klauze) > 1)
+{ 
+  text_takty[length(text_takty)]<-paste(klauze[length(text_takty)],"@",sep="")
+  text_takty[length(text_takty)-1]<-paste("@",klauze[length(text_takty)-1],sep="")
+}
+
+##pro vice klitik v F pozici, "mazani" dolaru v podstate (prepisuju tu pozici tim paste)
+
+#pro 2 klitika v F pozici
+if (pocet_Fklitik == 2 & length(klauze) > 1 )     #neresi zatim ale delku slova pred tim
+{ 
+  text_takty[length(text_takty)]<-paste(klauze[length(text_takty)],"@",sep="")
+  text_takty[length(text_takty)-1]<-paste("@",klauze[length(text_takty)-1],sep="")   #length(text_takty)-1 znamena predposledni pozice odolarovaneho textu
+  
+  if (delka_slova_slabiky[length(klauze)-2] < 5)   #tady uz resim, co s tim s ohledem na delku slova pred klitikama
+  {
+    text_takty[length(text_takty)-2]<-paste("@",klauze[length(text_takty)-2],sep="")
+    text_takty[length(text_takty)-1]<-paste(klauze[length(text_takty)-1],sep="")
+  }
+}
+
+#pro 3 klitika v F pozici
+if (pocet_Fklitik == 3 & length(klauze) > 1 )     #neresi zatim ale delku slova pred tim
+{ 
+  text_takty[length(text_takty)]<-paste(klauze[length(text_takty)],"@",sep="")      #davam dolar jen za posledni klitikon ve F pozici
+  text_takty[length(text_takty)-1]<-paste(klauze[length(text_takty)-1],sep="")      #mazu dolary prostredniho klitika
+  text_takty[length(text_takty)-2]<-paste("@",klauze[length(text_takty)-2],sep="")  #davam dolar jen pred prvni klitikon ve F pozici
+  
+  if (delka_slova_slabiky[length(klauze)-3] < 4)   #tady uz resim, co s tim s ohledem na delku slova pred klitikama
+  {
+    text_takty[length(text_takty)-3]<-paste("@",klauze[length(text_takty)-3],sep="")  #davam dolar pred slovo predchazejici prvnimu klitikonu ve F pozici
+    text_takty[length(text_takty)-1]<-paste(klauze[length(text_takty)-1],sep="")      #odstranuju dolary z predposledniho klitikonu
+    text_takty[length(text_takty)-2]<-paste(klauze[length(text_takty)-2],sep="")      #odstranuju dolar z predpredposledniho klitikonu
+  }   
+}
+
+#pro 4 klitika v F pozici
+if (pocet_Fklitik == 4 & length(klauze) > 1 )     #neresi zatim ale delku slova pred tim
+{ 
+  text_takty[length(text_takty)]<-paste(klauze[length(text_takty)],"@",sep="")     #davam dolar jen za 4. = posledni klitikon ve F pozici
+  text_takty[length(text_takty)-1]<-paste(klauze[length(text_takty)-1],sep="")     #mazu dolary ze 3. klitikonu
+  text_takty[length(text_takty)-2]<-paste(klauze[length(text_takty)-2],sep="")     #mazu dolary ze 2. klitikonu
+  text_takty[length(text_takty)-3]<-paste("@",klauze[length(text_takty)-3],sep="") #davam dolar jen pred 1. klitikon ve F pozici
+  
+  if (delka_slova_slabiky[length(klauze)-4] == 2)   #tady uz resim, co s tim s ohledem na delku slova pred klitikama
+  {
+    text_takty[length(text_takty)-4]<-paste("@",klauze[length(text_takty)-4],sep="")  #davam dolar pred slovo predchazejici 1. klitikonu ve F pozici
+    text_takty[length(text_takty)-1]<-paste(klauze[length(text_takty)-1],sep="")      #odstranuju dolary ze 3. klitikonu
+    text_takty[length(text_takty)-2]<-paste(klauze[length(text_takty)-2],sep="")      #odstranuju dolary z 2. klitikonu
+    text_takty[length(text_takty)-3]<-paste(klauze[length(text_takty)-3],sep="")      #odstranuju dolary z 1. klitikonu
+  }   
+  if (delka_slova_slabiky[length(klauze)-4] == 3| delka_slova_slabiky[length(klauze)-4] == 4 ) 
+  {
+    text_takty[length(text_takty)-4]<-paste("@",klauze[length(text_takty)-4],sep="")  #davam dolar pred slovo predchazejici 1. klitikonu ve F pozici
+    text_takty[length(text_takty)-1]<-paste("@",klauze[length(text_takty)-1],sep="")  #davam dolar pred 3. klitikon
+    text_takty[length(text_takty)-2]<-paste(klauze[length(text_takty)-2],"@",sep="")  #davam dolar za 2. klitikon
+    text_takty[length(text_takty)-3]<-paste(klauze[length(text_takty)-3],sep="")      #odstranuju dolary z 1. klitikonu
+  }  
+}
+
+#pro 5 klitik v F pozici
+if (pocet_Fklitik == 5 & length(klauze) > 1 )     #neresi zatim ale delku slova pred tim
+{ 
+  text_takty[length(text_takty)]<-paste(klauze[length(text_takty)],"@",sep="")  	   #davam dolar jen za 5. = posledni klitikon ve F pozici
+  text_takty[length(text_takty)-1]<-paste(klauze[length(text_takty)-1],sep="")		   #mazu dolary ze 4. klitikonu
+  text_takty[length(text_takty)-2]<-paste(klauze[length(text_takty)-2],sep="") 	   #mazu dolary ze 3. klitikonu
+  text_takty[length(text_takty)-3]<-paste(klauze[length(text_takty)-3],sep="")            #mazu dolary ze 2. klitikonu 
+  text_takty[length(text_takty)-4]<-paste("@",klauze[length(text_takty)-4],sep="")        #davam dolar jen pred 1. klitikon ve F pozici
+  
+  if (delka_slova_slabiky[length(klauze)-5] == 2| delka_slova_slabiky[length(klauze)-5] == 3 ) 
+  {
+    text_takty[length(text_takty)-5]<-paste("@",klauze[length(text_takty)-5],sep="")      #davam dolar pred slovo predchazejici 1. klitikonu ve F pozici
+    text_takty[length(text_takty)-2]<-paste("@",klauze[length(text_takty)-2],sep="")      #davam dolar pred 3. klitikon
+    text_takty[length(text_takty)-3]<-paste(klauze[length(text_takty)-3],"@",sep="")      #davam dolar za 2. klitikon
+    text_takty[length(text_takty)-4]<-paste(klauze[length(text_takty)-4],sep="")          #odstranuju dolary z 1. klitikonu
+  }  
+  if (delka_slova_slabiky[length(klauze)-5] == 4)
+  {
+    text_takty[length(text_takty)]<-paste(klauze[length(text_takty)],"@",sep="")    	 #davam dolar jen za 5. = posledni klitikon ve F pozici
+    text_takty[length(text_takty)-1]<-paste(klauze[length(text_takty)-1],sep="")     	 #mazu dolary ze 4. klitikonu
+    text_takty[length(text_takty)-2]<-paste("@",klauze[length(text_takty)-2],sep="")  	 #davam dolar pred 3. klitikon
+    text_takty[length(text_takty)-3]<-paste(klauze[length(text_takty)-3],"@",sep="")      #davam dolar za 2. klitikon
+    text_takty[length(text_takty)-4]<-paste("@",klauze[length(text_takty)-4],sep="") 	 #davam dolar jen pred 1. klitikon ve F pozici
+  }
+  if (delka_slova_slabiky[length(klauze)-5] > 4)
+  {
+    text_takty[length(text_takty)]<-paste(klauze[length(text_takty)],"@",sep="")         #davam dolar jen za 5. = posledni klitikon ve F pozici
+    text_takty[length(text_takty)-1]<-paste("@",klauze[length(text_takty)-1],sep="")     #davam dolar pred 4. klitikon
+    text_takty[length(text_takty)-2]<-paste(klauze[length(text_takty)-2],"@",sep="")     #davam dolar za 3. klitikon
+    text_takty[length(text_takty)-3]<-paste(klauze[length(text_takty)-3],sep="")         #mazu dolary ze 2. klitikonu
+    text_takty[length(text_takty)-4]<-paste("@",klauze[length(text_takty)-4],sep="")    #davam dolar jen pred 1. klitikon ve F pozici
+  }
+}
+
+#pro 6 klitik v F pozici
+if (pocet_Fklitik == 6 & length(klauze) > 1 )     #neresi zatim ale delku slova pred tim
+{ 
+  text_takty[length(text_takty)]<-paste(klauze[length(text_takty)],"@",sep="")   	#davam dolar jen za 6. = posledni klitikon ve F pozici
+  text_takty[length(text_takty)-1]<-paste(klauze[length(text_takty)-1],sep="")  	#mazu dolary ze 5. klitikonu
+  text_takty[length(text_takty)-2]<-paste(klauze[length(text_takty)-2],sep="")   	#mazu dolary ze 4. klitikonu
+  text_takty[length(text_takty)-3]<-paste(klauze[length(text_takty)-3],sep="")   	#mazu dolary ze 3. klitikonu 
+  text_takty[length(text_takty)-4]<-paste(klauze[length(text_takty)-4],sep="")  	#mazu dolary ze 2. klitikonu 
+  text_takty[length(text_takty)-5]<-paste("@",klauze[length(text_takty)-5],sep="")     #davam dolar jen pred 1. klitikon ve F pozici
+  
+  if (delka_slova_slabiky[length(klauze)-6] == 2| delka_slova_slabiky[length(klauze)-6] == 3 ) 
+  {
+    text_takty[length(text_takty)-6]<-paste("@",klauze[length(text_takty)-6],sep="")  #davam dolar pred slovo predchazejici 1. klitikonu ve F pozici
+    text_takty[length(text_takty)-3]<-paste("@",klauze[length(text_takty)-3],sep="")  #davam dolar pred 3. klitikon
+    text_takty[length(text_takty)-2]<-paste(klauze[length(text_takty)-2],sep="")      #mazu dolary ze 4. klitikonu
+    text_takty[length(text_takty)-1]<-paste(klauze[length(text_takty)-1],sep="")      #mazu dolary z 5. klitikonu
+    text_takty[length(text_takty)-4]<-paste(klauze[length(text_takty)-4],"@",sep="")  #davam dolar za 2. klitikon
+    text_takty[length(text_takty)-5]<-paste(klauze[length(text_takty)-5],sep="")      #mazu dolary z 1. klitikonu
+  }  
+  if (delka_slova_slabiky[length(klauze)-6] > 3)
+  {
+    text_takty[length(text_takty)]<-paste(klauze[length(text_takty)],"@",sep="")      	#davam dolar jen za 6. = posledni klitikon ve F pozici
+    text_takty[length(text_takty)-1]<-paste(klauze[length(text_takty)-1],sep="")     	#mazu dolary z 5. klitikonu
+    text_takty[length(text_takty)-2]<-paste("@",klauze[length(text_takty)-2],sep="")     #davam dolar pred 4. klitikon
+    text_takty[length(text_takty)-3]<-paste(klauze[length(text_takty)-3],"@",sep="")     #davam dolar za 3. klitikon
+    text_takty[length(text_takty)-4]<-paste(klauze[length(text_takty)-4],sep="")      	#mazu dolary ze 2. klitikonu
+    text_takty[length(text_takty)-5]<-paste("@",klauze[length(text_takty)-5],sep="") 	#davam dolar jen pred 1. klitikon ve F pozici
+  }
+}
+
+
+### I pozice
+#1 MW slovo v I pozici, to same co pro klitika na konci, jen jdu od zacatku proto i<-1
+pocet_MW_I_pozice<-0
+i <- 1    #prvni slovo klauze
+while
+(i <= length(klauze) & delka_slova_slabiky[i] == 1 & substr(text_takty[i],1,1) != "@") #pokud je i mensi nebo rovno delce klauze, tzn. je prvni nebo jedine slovo klauze
+{
+  pocet_MW_I_pozice<- pocet_MW_I_pozice +1
+  i <- i+1 
+}
+
+
+#pripojeni 1 MW v I pozici k nasledujicimu + vkladani dolaru i do rozslabikovaneho textu
+if (pocet_MW_I_pozice == 1 & length(klauze) > 1)
+{ 
+  text_takty[1]<-paste("$",klauze[1],sep="")
+  text_takty[2]<-paste(klauze[2],"$",sep="")
+}
+
+#2 MW v I pozici
+if (pocet_MW_I_pozice == 2 & length(klauze) > 2)
+{ 
+  text_takty[1]<-paste("$",klauze[1],sep="")
+  text_takty[2]<-paste(klauze[2],"$",sep="")
+}
+
+#3 MW v I pozici
+if (pocet_MW_I_pozice == 3 & length(klauze) > 3)
+{ 
+  text_takty[1]<-paste("$",klauze[1],sep="")
+  text_takty[2]<-paste(klauze[2],sep="")
+  text_takty[3]<-paste(klauze[3],"$",sep="")
+}
+
+#4 MW v I pozici
+if (pocet_MW_I_pozice == 4 & length(klauze) > 4 )
+{ 
+  text_takty[1]<-paste("$",klauze[1],sep="")
+  text_takty[2]<-paste(klauze[2],sep="")
+  text_takty[3]<-paste(klauze[3],sep="")
+  text_takty[4]<-paste(klauze[4],"$",sep="")
+}
+
+#5 MW v I pozici
+if (pocet_MW_I_pozice == 5 & length(klauze) > 5 )
+{ 
+  text_takty[1]<-paste("$",klauze[1],sep="")
+  text_takty[2]<-paste(klauze[2],sep="")
+  text_takty[3]<-paste(klauze[3],"$",sep="")
+  text_takty[4]<-paste("$",klauze[4],sep="")
+  text_takty[5]<-paste(klauze[5],"$",sep="")
+}
+
+#6 MW v I pozici
+if (pocet_MW_I_pozice == 6 & length(klauze) > 6 )
+{ 
+  text_takty[1]<-paste("$",klauze[1],sep="")
+  text_takty[2]<-paste(klauze[2],sep="")
+  text_takty[3]<-paste(klauze[3],"$",sep="")
+  text_takty[4]<-paste("$",klauze[4],sep="")
+  text_takty[5]<-paste(klauze[5],sep="")
+  text_takty[6]<-paste(klauze[6],"$",sep="")
+}
+
+#7 MW v I pozici
+if (pocet_MW_I_pozice == 7 & length(klauze) > 7 )
+{ 
+  text_takty[1]<-paste("$",klauze[1],sep="")
+  text_takty[2]<-paste(klauze[2],sep="")
+  text_takty[3]<-paste(klauze[3],sep="")
+  text_takty[4]<-paste(klauze[4],"$",sep="")
+  text_takty[5]<-paste("$",klauze[5],sep="")
+  text_takty[6]<-paste(klauze[6],sep="")
+  text_takty[7]<-paste(klauze[7],"$",sep="")
+}
+
+text_takty   #vysledek prvni klauze
+vysledny_text<-text_takty
+vysledny_text<-gsub("@","$",vysledny_text)
+
+
+#### resim M pozici
+#oznaceni taktu v "textu" z cisel = delek slov ve slabikach
+hranice_MT_slabiky<-c()
+delka_slova_slabiky_takty<-delka_slova_slabiky
+for (i in 1:length(vysledny_text))
+{
+  if (substr(vysledny_text[i],1,1) == "$")  delka_slova_slabiky_takty[i]<-paste("$",delka_slova_slabiky[i],sep="")
+  if (substr(vysledny_text[i],nchar(vysledny_text[i]),nchar(vysledny_text[i])) == "$") delka_slova_slabiky_takty[i]<-paste(delka_slova_slabiky_takty[i],"$",sep="")
+} 
+
+hranice_MT_slabiky<-delka_slova_slabiky_takty
+hranice_MT_slabiky
+
+#pocitani delky taktu pred M pozici, tzn. nescita delky slov tvorici takty v F pozici
+#hranice taktu
+zacatek_MT<-c()
+for (i in 1:length(hranice_MT_slabiky))
+{if (substr(hranice_MT_slabiky[i], 1, 1) == "$") zacatek_MT<-c(zacatek_MT,i)
+} 
+konec_MT<-rep(0,length(zacatek_MT))     
+for (i in 1:(length(konec_MT)-1))
+  konec_MT[i]<-zacatek_MT[i+1]-1
+konec_MT[length(konec_MT)]<-(pozice_hranice_klauze[1])
+
+#scitani poctu slabik v taktech
+delka_slova_slabiky_cisla<-as.numeric(delka_slova_slabiky)  #prevede text na ciselne hodnoty
+#delka_MT   ale nepocita F pozice
+delka_MT<-rep(0,length(konec_MT))
+for (i in 1:length(delka_MT))
+  delka_MT[i]<-sum(delka_slova_slabiky_cisla[zacatek_MT[i]:konec_MT[i]])
+#prevedeni delky MT na ciselne hodnoty pro program
+delka_MT_cisla<-as.numeric(delka_MT)
+
+#kde je medialni pozice
+zacatek_M_pozice<-c()
+konec_M_pozice<-c()
+pozice_jednicek<-c()  #pozice MW v M pozici :D 
+vetsi_rozdil_pozice<-c() #pozice rozdilu vetsiho nez 1, tzn. ze je tam viceslabicne slovo nebo slova
+
+if (length(delka_MT_cisla) > 2)
+{
+  for (i in (delka_MT_cisla[1]):(length(delka_MT_cisla))-1)
+  {
+    if (delka_MT_cisla[i] == 1)   pozice_jednicek<-c(pozice_jednicek,i)
+  } 
+}
+##pro 1 MW v klauzi v M pozici
+if (length(pozice_jednicek) == 1) 
+{
+  #pocitam pocet slabik pred MW v M pozici, resp. scitam vsechny slabiky az do konce (pro MT)
+  kumulativni_delka_MT<-rep(0,length(delka_MT))
+  for (i in 1:length(delka_MT))
+  {
+    kumulativni_delka_MT[i]<-sum(delka_MT[1:i])
+  }
+  kumulativni_delka_MT
+  #to same pro slova
+  kumulativni_delka_slov<-rep(0,length(delka_slova_slabiky_cisla))
+  for (i in 1:length(delka_slova_slabiky_cisla))
+  {
+    kumulativni_delka_slov[i]<-sum(delka_slova_slabiky_cisla[1:i])
+  }
+  kumulativni_delka_slov
+  
+  #hledam pozici M MW slova v textu
+  MW_M_pozice_text<-which(kumulativni_delka_MT[pozice_jednicek]==kumulativni_delka_slov)
+  MW_M_pozice_text
+  
+  #dolaruju 1 MW v M pozici v textu
+  vysledny_text[MW_M_pozice_text]<-paste(klauze[MW_M_pozice_text],"$",sep="")
+  vysledny_text[MW_M_pozice_text-1]<-paste("$",klauze[MW_M_pozice_text-1],sep="")
+  vysledny_text
+  
+  #reseni pro divnosti,kdyz v I pozici MW, pak PW, pak MW pak neco dalsiho
+  if (substr(vysledny_text[MW_M_pozice_text[1]-2],nchar(vysledny_text[MW_M_pozice_text[1]-2]),nchar(vysledny_text[MW_M_pozice_text[1]-2])) != "$" & substr(vysledny_text[MW_M_pozice_text[1]-1],1,1) == "$") 
+    
+    vysledny_text[MW_M_pozice_text[1]-1]<-paste(text[MW_M_pozice_text[1]-1])
+  
+  
+  
+  
+  ##musim prepocitat delku MT bo jsem spojovala slova...
+  delka_MT_prvni<-delka_MT
+  delka_MT<-rep(0,length(delka_MT_prvni)-1)
+  delka_MT[1:(pozice_jednicek-2)]<-delka_MT_prvni[1:(pozice_jednicek-2)]
+  delka_MT[pozice_jednicek-1]<-delka_MT_prvni[pozice_jednicek-1]+1
+  for (i in pozice_jednicek:length(delka_MT))
+    delka_MT[i]<-delka_MT_prvni[i+1]
+}
+
+##pro vice MW v M pozici v 1 klauzi 
+if (length(pozice_jednicek) > 1) 
+{
+  #kde je medialni pozice
+  zacatek_M_pozice<-c()
+  konec_M_pozice<-c()
+  pozice_jednicek<-c()  #pozice MW v M pozici :D urcuje to ale pozice v posloupnosti taktu a ne slov!
+  
+  for (i in 2:(length(delka_MT_cisla)-1)) 
+  {
+    if (delka_MT_cisla[i] == 1)   pozice_jednicek<-c(pozice_jednicek,i)
+  } 
+  
+  rozdil_pozice_jednicek<-rep(0,length(pozice_jednicek)-1) #kdyz 1, nasleduje dalsi MW, kdyz vice nez 1, nasleduje viceslabicne slovo
+  for (i in 1:length(rozdil_pozice_jednicek))
+    rozdil_pozice_jednicek[i]<-pozice_jednicek[i+1]-pozice_jednicek[i]
+  pocet_M_pozic<-1
+  for (i in 1:length(rozdil_pozice_jednicek)) 	
+    if (rozdil_pozice_jednicek[i] > 1) 
+    {
+      pocet_M_pozic<-pocet_M_pozic+1
+    }
+  if (pocet_M_pozic == 1)    # POZOR tenhle if se konci az o dost niz...tzn. vse odsad plati jen, je-li v klauzi 1 posloupnost MW(S)
+  { 
+    zacatek_M_pozice<-pozice_jednicek[1]
+    konec_M_pozice<-pozice_jednicek[length(pozice_jednicek)]
+    delka_posloupnosti_MWS<-konec_M_pozice - zacatek_M_pozice + 1
+    
+    ##pro 1 posloupnost MWS v M pozici
+    #pocitam pocet slabik pred zacatek_M_pozice, resp. scitam vsechny slabiky az do konce (pro MT)
+    kumulativni_delka_MT<-rep(0,length(delka_MT))
+    for (i in 1:length(delka_MT))
+    {
+      kumulativni_delka_MT[i]<-sum(delka_MT[1:i])
+    }
+    kumulativni_delka_MT
+    #to same pro slova
+    kumulativni_delka_slov<-rep(0,length(delka_slova_slabiky_cisla))
+    for (i in 1:length(delka_slova_slabiky_cisla))
+    {
+      kumulativni_delka_slov[i]<-sum(delka_slova_slabiky_cisla[1:i])
+    }
+    kumulativni_delka_slov
+    
+    #hledam pozice M MW slov v textu
+    MWS_M_pozice_text<-c()
+    for (i in 1:length(pozice_jednicek))
+      MWS_M_pozice_text<-c(MWS_M_pozice_text,which(kumulativni_delka_slov==kumulativni_delka_MT[pozice_jednicek[i]]))
+    
+    ##potrebuju upravit delka_slova_slabiky_cisla, aby se zvysilo o 1, kdyz se jedno MW v I pozici pripoji k nasledujicimu slovu, za kterym je nejaka M pozice
+    
+    prvni_klauze_upravena_delka_slova_slabiky_cisla<-delka_slova_slabiky_cisla
+    
+    if (substr(vysledny_text[MWS_M_pozice_text[1]-1],1,1) != "$")
+      prvni_klauze_upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text[1]-1]<-prvni_klauze_upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text[1]-1]+1
+    
+    
+    ##dolaruju
+    #pro posloupnost 2 MW v M pozici
+    if (delka_posloupnosti_MWS == 2 & length(klauze) > 1 )     #neresi zatim ale delku slova pred tim
+    { 
+      vysledny_text[MWS_M_pozice_text[1]]<-paste("$",klauze[MWS_M_pozice_text[1]],sep="")
+      vysledny_text[MWS_M_pozice_text[2]]<-paste(klauze[MWS_M_pozice_text[2]],"$",sep="")
+      
+      if (prvni_klauze_upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text[1]-1] == 2)   #s ohledem na delku predesleho slova
+      {
+        vysledny_text[MWS_M_pozice_text[1]-1]<-paste("$",klauze[MWS_M_pozice_text[1]-1],sep="")
+        vysledny_text[MWS_M_pozice_text[1]]<-paste(klauze[MWS_M_pozice_text[1]],sep="")
+        vysledny_text[MWS_M_pozice_text[2]]<-paste(klauze[MWS_M_pozice_text[2]],"$",sep="")
+      }
+      if (prvni_klauze_upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text[1]-1] == 3)   #s ohledem na delku predesleho slova
+      {
+        vysledny_text[MWS_M_pozice_text[1]-1]<-paste("$",klauze[MWS_M_pozice_text[1]-1],sep="")
+        vysledny_text[MWS_M_pozice_text[1]]<-paste(klauze[MWS_M_pozice_text[1]],sep="")
+        vysledny_text[MWS_M_pozice_text[2]]<-paste(klauze[MWS_M_pozice_text[2]],"$",sep="")
+      }
+      if (prvni_klauze_upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text[1]-1] == 4)   #s ohledem na delku predesleho slova
+      {
+        vysledny_text[MWS_M_pozice_text[1]-1]<-paste("$",klauze[MWS_M_pozice_text[1]-1],sep="")
+        vysledny_text[MWS_M_pozice_text[1]]<-paste(klauze[MWS_M_pozice_text[1]],sep="")
+        vysledny_text[MWS_M_pozice_text[2]]<-paste(klauze[MWS_M_pozice_text[2]],"$",sep="")
+      }
+    }
+    
+    #pro posloupnost 3 MW v M pozici
+    if (delka_posloupnosti_MWS == 3 & length(klauze) > 1 )     #neresi zatim ale delku slova pred tim
+    { 
+      vysledny_text[MWS_M_pozice_text[1]]<-paste("$",klauze[MWS_M_pozice_text[1]],sep="")
+      vysledny_text[MWS_M_pozice_text[2]]<-paste(klauze[MWS_M_pozice_text[2]],sep="")
+      vysledny_text[MWS_M_pozice_text[3]]<-paste(klauze[MWS_M_pozice_text[3]],"$",sep="")
+      
+      if (prvni_klauze_upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text[1]-1] == 2)   #s ohledem na delku predesleho slova
+      {
+        vysledny_text[MWS_M_pozice_text[1]-1]<-paste("$",klauze[MWS_M_pozice_text[1]-1],sep="")
+        vysledny_text[MWS_M_pozice_text[1]]<-paste(klauze[MWS_M_pozice_text[1]],sep="")
+        vysledny_text[MWS_M_pozice_text[2]]<-paste(klauze[MWS_M_pozice_text[2]],sep="")
+        vysledny_text[MWS_M_pozice_text[3]]<-paste(klauze[MWS_M_pozice_text[3]],"$",sep="")
+      }
+      if (prvni_klauze_upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text[1]-1] == 3)   #s ohledem na delku predesleho slova
+      {
+        vysledny_text[MWS_M_pozice_text[1]-1]<-paste("$",klauze[MWS_M_pozice_text[1]-1],sep="")
+        vysledny_text[MWS_M_pozice_text[1]]<-paste(klauze[MWS_M_pozice_text[1]],sep="")
+        vysledny_text[MWS_M_pozice_text[2]]<-paste(klauze[MWS_M_pozice_text[2]],sep="")
+        vysledny_text[MWS_M_pozice_text[3]]<-paste(klauze[MWS_M_pozice_text[3]],"$",sep="")
+      }
+    }
+    
+    #pro posloupnost 4 MW v M pozici
+    if (delka_posloupnosti_MWS == 4 & length(klauze) > 1 )     #neresi zatim ale delku slova pred tim
+    { 
+      vysledny_text[MWS_M_pozice_text[1]]<-paste("$",klauze[MWS_M_pozice_text[1]],sep="")
+      vysledny_text[MWS_M_pozice_text[2]]<-paste(klauze[MWS_M_pozice_text[2]],sep="")
+      vysledny_text[MWS_M_pozice_text[3]]<-paste(klauze[MWS_M_pozice_text[3]],sep="")
+      vysledny_text[MWS_M_pozice_text[4]]<-paste(klauze[MWS_M_pozice_text[4]],"$",sep="")
+      
+      if (prvni_klauze_upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text[1]-1] == 2)   #s ohledem na delku predesleho slova
+      {
+        vysledny_text[MWS_M_pozice_text[1]-1]<-paste("$",klauze[MWS_M_pozice_text[1]-1],sep="")
+        vysledny_text[MWS_M_pozice_text[1]]<-paste(klauze[MWS_M_pozice_text[1]],sep="")
+        vysledny_text[MWS_M_pozice_text[2]]<-paste(klauze[MWS_M_pozice_text[2]],sep="")
+        vysledny_text[MWS_M_pozice_text[3]]<-paste(klauze[MWS_M_pozice_text[3]],sep="")
+        vysledny_text[MWS_M_pozice_text[4]]<-paste(klauze[MWS_M_pozice_text[4]],"$",sep="")
+      }
+      if (prvni_klauze_upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text[1]-1] == 3)   #s ohledem na delku predesleho slova
+      {
+        vysledny_text[MWS_M_pozice_text[1]-1]<-paste("$",klauze[MWS_M_pozice_text[1]-1],sep="")
+        vysledny_text[MWS_M_pozice_text[1]]<-paste(klauze[MWS_M_pozice_text[1]],sep="")
+        vysledny_text[MWS_M_pozice_text[2]]<-paste(klauze[MWS_M_pozice_text[2]],"$",sep="")
+        vysledny_text[MWS_M_pozice_text[3]]<-paste("$",klauze[MWS_M_pozice_text[3]],sep="")
+        vysledny_text[MWS_M_pozice_text[4]]<-paste(klauze[MWS_M_pozice_text[4]],"$",sep="")
+      }
+      if (prvni_klauze_upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text[1]-1] == 4)   #s ohledem na delku predesleho slova
+      {
+        vysledny_text[MWS_M_pozice_text[1]-1]<-paste("$",klauze[MWS_M_pozice_text[1]-1],sep="")
+        vysledny_text[MWS_M_pozice_text[1]]<-paste(klauze[MWS_M_pozice_text[1]],sep="")
+        vysledny_text[MWS_M_pozice_text[2]]<-paste(klauze[MWS_M_pozice_text[2]],"$",sep="")
+        vysledny_text[MWS_M_pozice_text[3]]<-paste("$",klauze[MWS_M_pozice_text[3]],sep="")
+        vysledny_text[MWS_M_pozice_text[4]]<-paste(klauze[MWS_M_pozice_text[4]],"$",sep="")
+      }
+    }
+    
+    #pro posloupnost 5 MW v M pozici
+    if (delka_posloupnosti_MWS == 5 & length(klauze) > 1 )     #neresi zatim ale delku slova pred tim
+    { 
+      
+      if (prvni_klauze_upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text[1]-1] == 2)   #s ohledem na delku predesleho slova
+      {
+        vysledny_text[MWS_M_pozice_text[1]-1]<-paste("$",klauze[MWS_M_pozice_text[1]-1],sep="")
+        vysledny_text[MWS_M_pozice_text[1]]<-paste(klauze[MWS_M_pozice_text[1]],sep="")
+        vysledny_text[MWS_M_pozice_text[2]]<-paste(klauze[MWS_M_pozice_text[2]],"$",sep="")
+        vysledny_text[MWS_M_pozice_text[3]]<-paste("$",klauze[MWS_M_pozice_text[3]],sep="")
+        vysledny_text[MWS_M_pozice_text[4]]<-paste(klauze[MWS_M_pozice_text[4]],sep="")
+        vysledny_text[MWS_M_pozice_text[5]]<-paste(klauze[MWS_M_pozice_text[5]],"$",sep="")
+      }
+      if (prvni_klauze_upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text[1]-1] == 3)   #s ohledem na delku predesleho slova
+      {
+        vysledny_text[MWS_M_pozice_text[1]-1]<-paste("$",klauze[MWS_M_pozice_text[1]-1],sep="")
+        vysledny_text[MWS_M_pozice_text[1]]<-paste(klauze[MWS_M_pozice_text[1]],sep="")
+        vysledny_text[MWS_M_pozice_text[2]]<-paste(klauze[MWS_M_pozice_text[2]],"$",sep="")
+        vysledny_text[MWS_M_pozice_text[3]]<-paste("$",klauze[MWS_M_pozice_text[3]],sep="")
+        vysledny_text[MWS_M_pozice_text[4]]<-paste(klauze[MWS_M_pozice_text[4]],sep="")
+        vysledny_text[MWS_M_pozice_text[5]]<-paste(klauze[MWS_M_pozice_text[5]],"$",sep="")
+      }
+      if (prvni_klauze_upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text[1]-1] == 4)   #s ohledem na delku predesleho slova
+      {
+        vysledny_text[MWS_M_pozice_text[1]]<-paste("$",klauze[MWS_M_pozice_text[1]],sep="")
+        vysledny_text[MWS_M_pozice_text[2]]<-paste(klauze[MWS_M_pozice_text[2]],"$",sep="")
+        vysledny_text[MWS_M_pozice_text[3]]<-paste("$",klauze[MWS_M_pozice_text[3]],sep="")
+        vysledny_text[MWS_M_pozice_text[4]]<-paste(klauze[MWS_M_pozice_text[4]],sep="")
+        vysledny_text[MWS_M_pozice_text[5]]<-paste(klauze[MWS_M_pozice_text[5]],"$",sep="")
+      }
+      if (prvni_klauze_upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text[1]-1] > 4)   #s ohledem na delku predesleho slova
+      {
+        vysledny_text[MWS_M_pozice_text[1]]<-paste("$",klauze[MWS_M_pozice_text[1]],sep="")
+        vysledny_text[MWS_M_pozice_text[2]]<-paste(klauze[MWS_M_pozice_text[2]],sep="")
+        vysledny_text[MWS_M_pozice_text[3]]<-paste(klauze[MWS_M_pozice_text[3]],"$",sep="")
+        vysledny_text[MWS_M_pozice_text[4]]<-paste("$",klauze[MWS_M_pozice_text[4]],sep="")
+        vysledny_text[MWS_M_pozice_text[5]]<-paste(klauze[MWS_M_pozice_text[5]],"$",sep="")
+      }
+    }
+    #pro posloupnost 6 MW v M pozici
+    if (delka_posloupnosti_MWS == 6 & length(klauze) > 1 )     #neresi zatim ale delku slova pred tim
+    { 
+      
+      if (prvni_klauze_upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text[1]-1] == 2)   #s ohledem na delku predesleho slova
+      {
+        vysledny_text[MWS_M_pozice_text[1]-1]<-paste("$",klauze[MWS_M_pozice_text[1]-1],sep="")
+        vysledny_text[MWS_M_pozice_text[1]]<-paste(klauze[MWS_M_pozice_text[1]],sep="")
+        vysledny_text[MWS_M_pozice_text[2]]<-paste(klauze[MWS_M_pozice_text[2]],"$",sep="")
+        vysledny_text[MWS_M_pozice_text[3]]<-paste("$",klauze[MWS_M_pozice_text[3]],sep="")
+        vysledny_text[MWS_M_pozice_text[4]]<-paste(klauze[MWS_M_pozice_text[4]],sep="")
+        vysledny_text[MWS_M_pozice_text[5]]<-paste(klauze[MWS_M_pozice_text[5]],sep="")
+        vysledny_text[MWS_M_pozice_text[6]]<-paste(klauze[MWS_M_pozice_text[6]],"$",sep="")
+      }
+      if (prvni_klauze_upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text[1]-1] == 3)   #s ohledem na delku predesleho slova
+      {
+        vysledny_text[MWS_M_pozice_text[1]-1]<-paste("$",klauze[MWS_M_pozice_text[1]-1],sep="")
+        vysledny_text[MWS_M_pozice_text[1]]<-paste(klauze[MWS_M_pozice_text[1]],sep="")
+        vysledny_text[MWS_M_pozice_text[2]]<-paste(klauze[MWS_M_pozice_text[2]],"$",sep="")
+        vysledny_text[MWS_M_pozice_text[3]]<-paste("$",klauze[MWS_M_pozice_text[3]],sep="")
+        vysledny_text[MWS_M_pozice_text[4]]<-paste(klauze[MWS_M_pozice_text[4]],sep="")
+        vysledny_text[MWS_M_pozice_text[5]]<-paste(klauze[MWS_M_pozice_text[5]],sep="")
+        vysledny_text[MWS_M_pozice_text[6]]<-paste(klauze[MWS_M_pozice_text[6]],"$",sep="")
+      }
+      if (prvni_klauze_upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text[1]-1] > 3)   #s ohledem na delku predesleho slova
+      {
+        vysledny_text[MWS_M_pozice_text[1]]<-paste("$",klauze[MWS_M_pozice_text[1]],sep="")
+        vysledny_text[MWS_M_pozice_text[2]]<-paste(klauze[MWS_M_pozice_text[2]],sep="")
+        vysledny_text[MWS_M_pozice_text[3]]<-paste(klauze[MWS_M_pozice_text[3]],"$",sep="")
+        vysledny_text[MWS_M_pozice_text[4]]<-paste("$",klauze[MWS_M_pozice_text[4]],sep="")
+        vysledny_text[MWS_M_pozice_text[5]]<-paste(klauze[MWS_M_pozice_text[5]],sep="")
+        vysledny_text[MWS_M_pozice_text[6]]<-paste(klauze[MWS_M_pozice_text[6]],"$",sep="")
+      }
+      
+    }
+    
+    #reseni pro divnosti,kdyz v I pozici MW, pak PW, pak MW pak neco dalsiho		
+    
+    if (substr(vysledny_text[MWS_M_pozice_text[1]-2],nchar(vysledny_text[MWS_M_pozice_text[1]-2]),nchar(vysledny_text[MWS_M_pozice_text[1]-2])) != "$" & substr(vysledny_text[MWS_M_pozice_text[1]-1],1,1) == "$") 
+      
+      vysledny_text[MWS_M_pozice_text[1]-1]<-paste(text[MWS_M_pozice_text[1]-1])
+    
+  }
+  
+  
+  
+  ##pro vice posloupnosti MW(S) v klauzi
+  if (pocet_M_pozic > 1) 
+  {
+    pomocna_promenna<-c(0,which(rozdil_pozice_jednicek > 1),length(pozice_jednicek))
+    for (i in 1:(length(pomocna_promenna) - 1))
+      zacatek_M_pozice<-c(zacatek_M_pozice,pomocna_promenna[i]+1)    #pozice v pozice_jednicek!
+    for (i in 2:length(pomocna_promenna))
+      konec_M_pozice<-c(konec_M_pozice,pomocna_promenna[i])          #pozice v pozice_jednicek!
+    delka_posloupnosti_MWS<-konec_M_pozice - zacatek_M_pozice + 1
+    
+    #hledam pozice posloupnosti MW(S) v textu
+    kumulativni_delka_MT<-rep(0,length(delka_MT))
+    for (j in 1:length(delka_MT))
+    {
+      kumulativni_delka_MT[j]<-sum(delka_MT[1:j])
+    }
+    kumulativni_delka_MT
+    #to same pro slova
+    kumulativni_delka_slov<-rep(0,length(delka_slova_slabiky_cisla))
+    for (j in 1:length(delka_slova_slabiky_cisla))
+    {
+      kumulativni_delka_slov[j]<-sum(delka_slova_slabiky_cisla[1:j])
+    }
+    kumulativni_delka_slov
+    
+    #hledam pozice M MW slov v textu
+    MWS_M_pozice_text<-c()
+    for (i in 1:length(pozice_jednicek))
+      MWS_M_pozice_text<-c(MWS_M_pozice_text,which(kumulativni_delka_slov==kumulativni_delka_MT[pozice_jednicek[i]]))
+    
+    ##potrebuju upravit delka_slova_slabiky_cisla, aby se zvysilo o 1, kdyz se jedno MW v I pozici pripoji k nasledujicimu slovu, za kterym je nejaka M pozice
+    
+    prvni_klauze_upravena_delka_slova_slabiky_cisla<-delka_slova_slabiky_cisla
+    
+    if (substr(vysledny_text[MWS_M_pozice_text[1]-1],1,1) != "$")
+      prvni_klauze_upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text[1]-1]<-prvni_klauze_upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text[1]-1]+1
+    
+    
+    
+    #dolaruju
+    for (i in 1:pocet_M_pozic) #prvni se postavi na prvni pozici,udela vse do konce;pak se postavi na druhou atd, tzn. projede to postupne vsechny posloupnosti
+    {
+      
+      #pro delku posloupnosti 1 (1 MW)
+      if  (delka_posloupnosti_MWS[i] == 1 & length(klauze) > 1 ) 
+      {
+        vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]-1]<-paste("$",klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]-1],sep="")
+        vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]],"$",sep="")
+      }
+      
+      #pro delku posloupnosti 2
+      if  (delka_posloupnosti_MWS[i] == 2 & length(klauze) > 1 )      #neresi zatim ale delku slova pred tim
+      {
+        vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]]<-paste("$",klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]],sep="")
+        vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+1]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+1],"$",sep="")
+        
+        if (prvni_klauze_upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text[zacatek_M_pozice[i]]-1] == 2)   #s ohledem na delku predesleho slova
+        { 
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]-1]<-paste("$",klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]-1],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+1]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+1],"$",sep="")
+        }
+        if (prvni_klauze_upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text[zacatek_M_pozice[i]]-1] == 3)   #s ohledem na delku predesleho slova
+        { 
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]-1]<-paste("$",klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]-1],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+1]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+1],"$",sep="")
+        }
+        if (prvni_klauze_upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text[zacatek_M_pozice[i]]-1] == 4)   #s ohledem na delku predesleho slova
+        { 
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]-1]<-paste("$",klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]-1],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+1]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+1],"$",sep="")
+        }
+      }
+      
+      #pro delku posloupnosti 3
+      if  (delka_posloupnosti_MWS[i] == 3 & length(klauze) > 1 )      #neresi zatim ale delku slova pred tim
+      {
+        vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]]<-paste("$",klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]],sep="")
+        vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+1]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+1],sep="")
+        vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+2]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+2],"$",sep="")
+        
+        if (prvni_klauze_upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text[zacatek_M_pozice[i]]-1] == 2)   #s ohledem na delku predesleho slova
+        { 
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]-1]<-paste("$",klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]-1],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+1]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+1],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+2]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+2],"$",sep="")
+        }
+        if (prvni_klauze_upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text[zacatek_M_pozice[i]]-1] == 3)   #s ohledem na delku predesleho slova
+        { 
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]-1]<-paste("$",klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]-1],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+1]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+1],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+2]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+2],"$",sep="")
+        }
+      }
+      
+      #pro delku posloupnosti 4
+      if  (delka_posloupnosti_MWS[i] == 4 & length(klauze) > 1 )      #neresi zatim ale delku slova pred tim
+      {
+        vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]]<-paste("$",klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]],sep="")
+        vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+1]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+1],sep="")
+        vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+2]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+2],sep="")
+        vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+3]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+3],"$",sep="")
+        
+        if (prvni_klauze_upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text[zacatek_M_pozice[i]]-1] == 2)   #s ohledem na delku predesleho slova
+        { 
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]-1]<-paste("$",klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]-1],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+1]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+1],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+2]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+2],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+3]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+3],"$",sep="")
+        }
+        if (prvni_klauze_upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text[zacatek_M_pozice[i]]-1] == 3)   #s ohledem na delku predesleho slova
+        { 
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]-1]<-paste("$",klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]-1],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+1]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+1],"$",sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+2]<-paste("$",klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+2],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+3]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+3],"$",sep="")
+        }
+        if (prvni_klauze_upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text[zacatek_M_pozice[i]]-1] == 4)   #s ohledem na delku predesleho slova
+        { 
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]-1]<-paste("$",klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]-1],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+1]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+1],"$",sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+2]<-paste("$",klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+2],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+3]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+3],"$",sep="")
+        }
+      }
+      
+      #pro delku posloupnosti 5
+      if  (delka_posloupnosti_MWS[i] == 5 & length(klauze) > 1 )      #neresi zatim ale delku slova pred tim
+      {
+        vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]]<-paste("$",klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]],sep="")
+        vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+1]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+1],sep="")
+        vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+2]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+2],"$",sep="")
+        vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+3]<-paste("$",klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+3],sep="")
+        vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+4]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+4],"$",sep="")
+        
+        if (prvni_klauze_upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text[zacatek_M_pozice[i]]-1] == 2)   #s ohledem na delku predesleho slova
+        { 
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]-1]<-paste("$",klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]-1],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+1]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+1],"$",sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+2]<-paste("$",klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+2],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+3]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+3],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+4]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+4],"$",sep="")
+        }
+        if (prvni_klauze_upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text[zacatek_M_pozice[i]]-1] == 3)   #s ohledem na delku predesleho slova
+        { 
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]-1]<-paste("$",klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]-1],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+1]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+1],"$",sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+2]<-paste("$",klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+2],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+3]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+3],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+4]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+4],"$",sep="")
+        }
+        if (prvni_klauze_upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text[zacatek_M_pozice[i]]-1] == 4)   #s ohledem na delku predesleho slova
+        { 
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]]<-paste("$",klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+1]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+1],"$",sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+2]<-paste("$",klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+2],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+3]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+3],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+4]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+4],"$",sep="")
+        }
+      }
+      
+      #pro delku posloupnosti 6
+      if  (delka_posloupnosti_MWS[i] == 6 & length(klauze) > 1 )      #neresi zatim ale delku slova pred tim
+      {
+        vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]]<-paste("$",klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]],sep="")
+        vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+1]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+1],sep="")
+        vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+2]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+2],"$",sep="")
+        vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+3]<-paste("$",klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+3],sep="")
+        vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+4]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+4],sep="")
+        vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+5]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+5],"$",sep="")
+        
+        if (prvni_klauze_upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text[zacatek_M_pozice[i]]-1] == 2)   #s ohledem na delku predesleho slova
+        { 
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]-1]<-paste("$",klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]-1],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+1]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+1],"$",sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+2]<-paste("$",klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+2],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+3]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+3],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+4]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+4],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+5]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+5],"$",sep="")
+        }
+        if (prvni_klauze_upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text[zacatek_M_pozice[i]]-1] == 3)   #s ohledem na delku predesleho slova
+        { 
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]-1]<-paste("$",klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]-1],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+1]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+1],"$",sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+2]<-paste("$",klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+2],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+3]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+3],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+4]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+4],sep="")
+          vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[i]]+5]<-paste(klauze[MWS_M_pozice_text[zacatek_M_pozice[i]]+5],"$",sep="")
+        }
+      }
+      
+    }
+    
+  }
+  
+  #reseni pro divnosti,kdyz v I pozici MW, pak PW, pak MW pak neco dalsiho
+  if (substr(vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[1]]-2],nchar(vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[1]]-2]),nchar(vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[1]]-2])) != "$" & substr(vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[1]]-1],1,1) == "$") 
+    vysledny_text[MWS_M_pozice_text[zacatek_M_pozice[1]]-1]<-paste(text[MWS_M_pozice_text[zacatek_M_pozice[1]]-1])
+  
+}
+
+
+
+vysledny_text  
+#dolary do textu z delek slabik
+for (i in 1:(pozice_hranice_klauze[1]))
+{
+  if (substr(vysledny_text[i],1,1) != "$" & substr(delka_slova_slabiky_takty[i],1,1) == "$")
+    delka_slova_slabiky_takty[i]<-(substr(delka_slova_slabiky_takty[i],2,nchar(delka_slova_slabiky_takty[i])))
+  if (substr(vysledny_text[i],nchar(vysledny_text[i]),nchar(vysledny_text[i])) != "$" & substr(delka_slova_slabiky_takty[i],nchar(delka_slova_slabiky_takty[i]),nchar(delka_slova_slabiky_takty[i])) == "$")
+    delka_slova_slabiky_takty[i]<-(substr(delka_slova_slabiky_takty[i],1,nchar(delka_slova_slabiky_takty[i])-1))
+}
+
+#vysledek vseho pro prvni klauzi textu vcetne MED pozice!!!
+text_takty<-c(vysledny_text,text[(pozice_hranice_klauze[1]+1):length(text)])
+
+
+
+##### dalsi klauze textu (druha az posledni)
+if (length(pozice_hranice_klauze > 1))
+  for (k in 1:(length(pozice_hranice_klauze)-1)) 
+  {
+    for (i in (pozice_hranice_klauze[k]+1):pozice_hranice_klauze[k+1])
+      text_takty[i]<-paste("$",text[i],"$",sep="")                 #kazde slovo povazuju za takt
+    
+    #for (i in (pozice_hranice_klauze[k]+1):(pozice_hranice_klauze[k+1]))
+    #  text_takty[pozice_hranice_klauze[i+1]]<-paste("@",text[pozice_hranice_klauze[i+1]],"@",sep="")
+    text_takty[pozice_hranice_klauze[k+1]]<-paste("@",text[pozice_hranice_klauze[k+1]],"@",sep="")
+    
+    for (i in (pozice_hranice_klauze[k]+1):length(delka_slova_slabiky_takty))
+      delka_slova_slabiky_takty[i]<-paste("$",delka_slova_slabiky[i],"$",sep="")    #vkladam na stejne misto $ i ciselnem textu (pocet slabik)
+    
+    
+    klauze<-text[(pozice_hranice_klauze[k]+1):pozice_hranice_klauze[k+1]]    
+    
+    pocet_Fklitik<-0   
+    #while cyklus funguje tak dluho,dokud splnuje podminky TRUE, zaciname od konce bo od i (coz je konec-delka
+    # klauze). Pokud je na te i pozici neco ze seznam_klitik_cisty, ulozi se do mnoziny pocet_Fklitik 1; podiva
+    # se to na i-1 a to same, kdyz je tam klitikon, pripocte do pocet_Fklitik 1 atd dokud neni FALSE)
+    
+    i<-length(klauze) #oznacuju si pracovne delku klauze
+    while
+    (i > 0 && is.element(klauze[i], seznam_klitik_cisty) == TRUE) 
+    {i <- i-1 
+    pocet_Fklitik<- pocet_Fklitik +1}
+    
+    ### F pozice
+    #pripojuju 1 klitikon z F pozice, mazu dolary
+    if (pocet_Fklitik == 1 & length(klauze) > 1)
+    { 
+      text_takty[pozice_hranice_klauze[k+1]]<-paste(klauze[length(klauze)],"@",sep="")
+      text_takty[pozice_hranice_klauze[k+1]-1]<-paste("@",klauze[length(klauze)-1],sep="")
+    }
+    
+    ##pro vice klitik v F pozici
+    
+    #pro 2 klitika v F pozici
+     #pokud klauze slozena pouze z klitik
+    if (pocet_Fklitik == 2 & length(klauze) == 2)
+    {
+      text_takty[pozice_hranice_klauze[k+1]]<-paste(klauze[length(klauze)],"@",sep="")
+      text_takty[pozice_hranice_klauze[k]+1]<-paste("@",klauze[length(klauze)-1],sep="")
+    }
+    
+     #pokud v klauzi i jina slova
+    if (pocet_Fklitik == 2 & length(klauze) > 2)     #neresi zatim ale delku slova pred tim
+    { 
+      text_takty[pozice_hranice_klauze[k+1]]<-paste(klauze[length(klauze)],"@",sep="")
+      text_takty[pozice_hranice_klauze[k+1]-1]<-paste("@",klauze[length(klauze)-1],sep="")
+      
+      if (delka_slova_slabiky[pozice_hranice_klauze[k+1]-2] < 5)   #tady uz resim, co s tim s ohledem na delku slova pred klitikama
+      {
+        text_takty[pozice_hranice_klauze[k+1]-2]<-paste("@",klauze[length(klauze)-2],sep="")
+        text_takty[pozice_hranice_klauze[k+1]-1]<-paste(klauze[length(klauze)-1],sep="")
+      }
+    }
+    
+    #pro 3 klitika v F pozici
+     #pokud klauze slozena jen z klitik
+    
+    if (pocet_Fklitik == 3 & length(klauze) == 3)
+    {
+      text_takty[pozice_hranice_klauze[k+1]]<-paste(klauze[length(klauze)],"@",sep="")
+      text_takty[pozice_hranice_klauze[k]+1]<-paste("@",klauze[length(klauze)-2],sep="")
+      text_takty[pozice_hranice_klauze[k]+2]<-paste(klauze[length(klauze)-1],sep="")
+    }
+     #pokud v klauzi i jina slova
+    if (pocet_Fklitik == 3 & length(klauze) > 3 )     #neresi zatim ale delku slova pred tim
+    { 
+      text_takty[pozice_hranice_klauze[k+1]]<-paste(klauze[length(klauze)],"@",sep="")      #davam dolar jen za posledni klitikon ve F pozici
+      text_takty[pozice_hranice_klauze[k+1]-1]<-paste(klauze[length(klauze)-1],sep="")      #mazu dolary prostredniho klitika
+      text_takty[pozice_hranice_klauze[k+1]-2]<-paste("@",klauze[length(klauze)-2],sep="")  #davam dolar jen pred prvni klitikon ve F pozici
+      
+      if (delka_slova_slabiky[pozice_hranice_klauze[k+1]-3] < 4)   #tady uz resim, co s tim s ohledem na delku slova pred klitikama
+      {
+        text_takty[pozice_hranice_klauze[k+1]-3]<-paste("@",klauze[length(klauze)-3],sep="")  #davam dolar pred slovo predchazejici prvnimu klitikonu ve F pozici
+        text_takty[pozice_hranice_klauze[k+1]-1]<-paste(klauze[length(klauze)-1],sep="")      #odstranuju dolary z predposledniho klitikonu
+        text_takty[pozice_hranice_klauze[k+1]-2]<-paste(klauze[length(klauze)-2],sep="")      #odstranuju dolar z predpredposledniho klitikonu
+      }   
+    }
+    
+    #pro 4 klitika v F pozici
+     #pokud klauze slozena jen z klitik
+    if (pocet_Fklitik == 4 & length(klauze) == 4)
+    {
+      text_takty[pozice_hranice_klauze[k+1]]<-paste(klauze[length(klauze)],"@",sep="")
+      text_takty[pozice_hranice_klauze[k]+1]<-paste("@",klauze[length(klauze)-3],sep="")
+      text_takty[pozice_hranice_klauze[k]+2]<-paste(klauze[length(klauze)-1],sep="")
+      text_takty[pozice_hranice_klauze[k]+3]<-paste(klauze[length(klauze)-2],sep="")
+    }
+    
+     #pokud v klauzi i jina slova
+    if (pocet_Fklitik == 4 & length(klauze) > 4 )     #neresi zatim ale delku slova pred tim
+    { 
+      text_takty[pozice_hranice_klauze[k+1]]<-paste(klauze[length(klauze)],"@",sep="")     #davam dolar jen za 4. = posledni klitikon ve F pozici
+      text_takty[pozice_hranice_klauze[k+1]-1]<-paste(klauze[length(klauze)-1],sep="")     #mazu dolary ze 3. klitikonu
+      text_takty[pozice_hranice_klauze[k+1]-2]<-paste(klauze[length(klauze)-2],sep="")     #mazu dolary ze 2. klitikonu
+      text_takty[pozice_hranice_klauze[k+1]-3]<-paste("@",klauze[length(klauze)-3],sep="") #davam dolar jen pred 1. klitikon ve F pozici
+      
+      if (delka_slova_slabiky[pozice_hranice_klauze[k+1]-4] == 2)   #tady uz resim, co s tim s ohledem na delku slova pred klitikama
+      {
+        text_takty[pozice_hranice_klauze[k+1]-4]<-paste("@",klauze[length(klauze)-4],sep="")  #davam dolar pred slovo predchazejici 1. klitikonu ve F pozici
+        text_takty[pozice_hranice_klauze[k+1]-1]<-paste(klauze[length(klauze)-1],sep="")      #odstranuju dolary ze 3. klitikonu
+        text_takty[pozice_hranice_klauze[k+1]-2]<-paste(klauze[length(klauze)-2],sep="")      #odstranuju dolary z 2. klitikonu
+        text_takty[pozice_hranice_klauze[k+1]-3]<-paste(klauze[length(klauze)-3],sep="")      #odstranuju dolary z 1. klitikonu
+      }   
+      if (delka_slova_slabiky[pozice_hranice_klauze[k+1]-4] == 3| delka_slova_slabiky[length(klauze)-4] == 4 ) 
+      {
+        text_takty[pozice_hranice_klauze[k+1]-4]<-paste("@",klauze[length(klauze)-4],sep="")  #davam dolar pred slovo predchazejici 1. klitikonu ve F pozici
+        text_takty[pozice_hranice_klauze[k+1]-1]<-paste("@",klauze[length(klauze)-1],sep="")  #davam dolar pred 3. klitikon
+        text_takty[pozice_hranice_klauze[k+1]-2]<-paste(klauze[length(klauze)-2],"@",sep="")  #davam dolar za 2. klitikon
+        text_takty[pozice_hranice_klauze[k+1]-3]<-paste(klauze[length(klauze)-3],sep="")      #odstranuju dolary z 1. klitikonu
+      }  
+    }
+    
+    #pro 5 klitik v F pozici
+    if (pocet_Fklitik == 5 & length(klauze) > 1 )     #neresi zatim ale delku slova pred tim
+    { 
+      text_takty[pozice_hranice_klauze[k+1]]<-paste(klauze[length(klauze)],"@",sep="")  	   #davam dolar jen za 5. = posledni klitikon ve F pozici
+      text_takty[pozice_hranice_klauze[k+1]-1]<-paste(klauze[length(klauze)-1],sep="")		   #mazu dolary ze 4. klitikonu
+      text_takty[pozice_hranice_klauze[k+1]-2]<-paste(klauze[length(klauze)-2],sep="") 	   #mazu dolary ze 3. klitikonu
+      text_takty[pozice_hranice_klauze[k+1]-3]<-paste(klauze[length(klauze)-3],sep="")            #mazu dolary ze 2. klitikonu 
+      text_takty[pozice_hranice_klauze[k+1]-4]<-paste("@",klauze[length(klauze)-4],sep="")        #davam dolar jen pred 1. klitikon ve F pozici
+      
+      if (delka_slova_slabiky[pozice_hranice_klauze[k+1]-5] == 2| delka_slova_slabiky[pozice_hranice_klauze[k+1]-5] == 3 ) 
+      {
+        text_takty[pozice_hranice_klauze[k+1]-5]<-paste("@",klauze[length(klauze)-5],sep="")      #davam dolar pred slovo predchazejici 1. klitikonu ve F pozici
+        text_takty[pozice_hranice_klauze[k+1]-2]<-paste("@",klauze[length(klauze)-2],sep="")      #davam dolar pred 3. klitikon
+        text_takty[pozice_hranice_klauze[k+1]-3]<-paste(klauze[length(klauze)-3],"@",sep="")      #davam dolar za 2. klitikon
+        text_takty[pozice_hranice_klauze[k+1]-4]<-paste(klauze[length(klauze)-4],sep="")          #odstranuju dolary z 1. klitikonu
+      }  
+      if (delka_slova_slabiky[pozice_hranice_klauze[k+1]-5] == 4)
+      {
+        text_takty[pozice_hranice_klauze[k+1]]<-paste(klauze[length(klauze)],"@",sep="")    	 #davam dolar jen za 5. = posledni klitikon ve F pozici
+        text_takty[pozice_hranice_klauze[k+1]-1]<-paste(klauze[length(klauze)-1],sep="")     	 #mazu dolary ze 4. klitikonu
+        text_takty[pozice_hranice_klauze[k+1]-2]<-paste("@",klauze[length(klauze)-2],sep="")  	 #davam dolar pred 3. klitikon
+        text_takty[pozice_hranice_klauze[k+1]-3]<-paste(klauze[length(klauze)-3],"@",sep="")      #davam dolar za 2. klitikon
+        text_takty[pozice_hranice_klauze[k+1]-4]<-paste("@",klauze[length(klauze)-4],sep="") 	 #davam dolar jen pred 1. klitikon ve F pozici
+      }
+      if (delka_slova_slabiky[pozice_hranice_klauze[k+1]-5] > 4)
+      {
+        text_takty[pozice_hranice_klauze[k+1]]<-paste(klauze[length(klauze)],"@",sep="")         #davam dolar jen za 5. = posledni klitikon ve F pozici
+        text_takty[pozice_hranice_klauze[k+1]-1]<-paste("@",klauze[length(klauze)-1],sep="")     #davam dolar pred 4. klitikon
+        text_takty[pozice_hranice_klauze[k+1]-2]<-paste(klauze[length(klauze)-2],"@",sep="")     #davam dolar za 3. klitikon
+        text_takty[pozice_hranice_klauze[k+1]-3]<-paste(klauze[length(klauze)-3],sep="")         #mazu dolary ze 2. klitikonu
+        text_takty[pozice_hranice_klauze[k+1]-4]<-paste("@",klauze[length(klauze)-4],sep="")    #davam dolar jen pred 1. klitikon ve F pozici
+      }
+    }
+    
+    #pro 6 klitik v F pozici
+    if (pocet_Fklitik == 6 & length(klauze) > 1 )     #neresi zatim ale delku slova pred tim
+    { 
+      text_takty[pozice_hranice_klauze[k+1]]<-paste(klauze[length(klauze)],"@",sep="")   	#davam dolar jen za 6. = posledni klitikon ve F pozici
+      text_takty[pozice_hranice_klauze[k+1]-1]<-paste(klauze[length(klauze)-1],sep="")  	#mazu dolary ze 5. klitikonu
+      text_takty[pozice_hranice_klauze[k+1]-2]<-paste(klauze[length(klauze)-2],sep="")   	#mazu dolary ze 4. klitikonu
+      text_takty[pozice_hranice_klauze[k+1]-3]<-paste(klauze[length(klauze)-3],sep="")   	#mazu dolary ze 3. klitikonu 
+      text_takty[pozice_hranice_klauze[k+1]-4]<-paste(klauze[length(klauze)-4],sep="")  	#mazu dolary ze 2. klitikonu 
+      text_takty[pozice_hranice_klauze[k+1]-5]<-paste("@",klauze[length(klauze)-5],sep="")     #davam dolar jen pred 1. klitikon ve F pozici
+      
+      if (delka_slova_slabiky[pozice_hranice_klauze[k+1]-6] == 2| delka_slova_slabiky[pozice_hranice_klauze[k+1]-6] == 3 ) 
+      {
+        text_takty[pozice_hranice_klauze[k+1]-6]<-paste("@",klauze[length(klauze)-6],sep="")  #davam dolar pred slovo predchazejici 1. klitikonu ve F pozici
+        text_takty[pozice_hranice_klauze[k+1]-3]<-paste("@",klauze[length(klauze)-3],sep="")  #davam dolar pred 3. klitikon
+        text_takty[pozice_hranice_klauze[k+1]-2]<-paste(klauze[length(klauze)-2],sep="")      #mazu dolary ze 4. klitikonu
+        text_takty[pozice_hranice_klauze[k+1]-1]<-paste(klauze[length(klauze)-1],sep="")      #mazu dolary z 5. klitikonu
+        text_takty[pozice_hranice_klauze[k+1]-4]<-paste(klauze[length(klauze)-4],"@",sep="")  #davam dolar za 2. klitikon
+        text_takty[pozice_hranice_klauze[k+1]-5]<-paste(klauze[length(klauze)-5],sep="")      #mazu dolary z 1. klitikonu
+      }  
+      if (delka_slova_slabiky[pozice_hranice_klauze[k+1]-6] > 3)
+      {
+        text_takty[pozice_hranice_klauze[k+1]]<-paste(klauze[length(klauze)],"@",sep="")      	#davam dolar jen za 6. = posledni klitikon ve F pozici
+        text_takty[pozice_hranice_klauze[k+1]-1]<-paste(klauze[length(klauze)-1],sep="")     	#mazu dolary z 5. klitikonu
+        text_takty[pozice_hranice_klauze[k+1]-2]<-paste("@",klauze[length(klauze)-2],sep="")     #davam dolar pred 4. klitikon
+        text_takty[pozice_hranice_klauze[k+1]-3]<-paste(klauze[length(klauze)-3],"@",sep="")     #davam dolar za 3. klitikon
+        text_takty[pozice_hranice_klauze[k+1]-4]<-paste(klauze[length(klauze)-4],sep="")      	#mazu dolary ze 2. klitikonu
+        text_takty[pozice_hranice_klauze[k+1]-5]<-paste("@",klauze[length(klauze)-5],sep="") 	#davam dolar jen pred 1. klitikon ve F pozici
+      }
+    }
+    
+    
+    ### I pozice
+    #1 MW slovo v I pozici, to same co pro klitika na konci, jen jdu od zacatku proto i<-1
+    pocet_MW_I_pozice<-0
+    i <- pozice_hranice_klauze[k]+1    #prvni slovo klauze
+    while
+    (i <= pozice_hranice_klauze[k+1] & delka_slova_slabiky[i] == 1 & substr(text_takty[i],1,1) != "@") #pokud je i mensi nebo rovno delce klauze, tzn. je prvni nebo jedine slovo klauze
+    {
+      pocet_MW_I_pozice<- pocet_MW_I_pozice +1
+      i <- i+1 
+    }
+    
+    #pripojeni 1 MW v I pozici k nasledujicimu
+    if (pocet_MW_I_pozice == 1 & length(klauze) > 1)
+    { 
+      text_takty[pozice_hranice_klauze[k]+1]<-paste("$",klauze[1],sep="")
+      text_takty[pozice_hranice_klauze[k]+2]<-paste(klauze[2],"$",sep="")	
+    }
+    
+    #2 MW v I pozici
+    if (pocet_MW_I_pozice == 2 & length(klauze) > 2)
+    { 
+      text_takty[pozice_hranice_klauze[k]+1]<-paste("$",klauze[1],sep="")
+      text_takty[pozice_hranice_klauze[k]+2]<-paste(klauze[2],"$",sep="")
+    }
+    
+    #3 MW v I pozici
+    if (pocet_MW_I_pozice == 3 & length(klauze) > 3)
+    { 
+      text_takty[pozice_hranice_klauze[k]+1]<-paste("$",klauze[1],sep="")
+      text_takty[pozice_hranice_klauze[k]+2]<-paste(klauze[2],sep="")
+      text_takty[pozice_hranice_klauze[k]+3]<-paste(klauze[3],"$",sep="")
+    }
+    
+    #4 MW v I pozici
+    if (pocet_MW_I_pozice == 4 & length(klauze) > 4 )
+    { 
+      text_takty[pozice_hranice_klauze[k]+1]<-paste("$",klauze[1],sep="")
+      text_takty[pozice_hranice_klauze[k]+2]<-paste(klauze[2],sep="")
+      text_takty[pozice_hranice_klauze[k]+3]<-paste(klauze[3],sep="")
+      text_takty[pozice_hranice_klauze[k]+4]<-paste(klauze[4],"$",sep="")
+    }
+    
+    #5 MW v I pozici
+    if (pocet_MW_I_pozice == 5 & length(klauze) > 5 )
+    { 
+      text_takty[pozice_hranice_klauze[k]+1]<-paste("$",klauze[1],sep="")
+      text_takty[pozice_hranice_klauze[k]+2]<-paste(klauze[2],sep="")
+      text_takty[pozice_hranice_klauze[k]+3]<-paste(klauze[3],"$",sep="")
+      text_takty[pozice_hranice_klauze[k]+4]<-paste("$",klauze[4],sep="")
+      text_takty[pozice_hranice_klauze[k]+5]<-paste(klauze[5],"$",sep="")
+    }
+    
+    #6 MW v I pozici
+    if (pocet_MW_I_pozice == 6 & length(klauze) > 6 )
+    { 
+      text_takty[pozice_hranice_klauze[k]+1]<-paste("$",klauze[1],sep="")
+      text_takty[pozice_hranice_klauze[k]+2]<-paste(klauze[2],sep="")
+      text_takty[pozice_hranice_klauze[k]+3]<-paste(klauze[3],"$",sep="")
+      text_takty[pozice_hranice_klauze[k]+4]<-paste("$",klauze[4],sep="")
+      text_takty[pozice_hranice_klauze[k]+5]<-paste(klauze[5],sep="")
+      text_takty[pozice_hranice_klauze[k]+6]<-paste(klauze[6],"$",sep="")
+    }
+    
+    #7 MW v I pozici
+    if (pocet_MW_I_pozice == 7 & length(klauze) > 7 )
+    { 
+      text_takty[pozice_hranice_klauze[k]+1]<-paste("$",klauze[1],sep="")
+      text_takty[pozice_hranice_klauze[k]+2]<-paste(klauze[2],sep="")
+      text_takty[pozice_hranice_klauze[k]+3]<-paste(klauze[3],sep="")
+      text_takty[pozice_hranice_klauze[k]+4]<-paste(klauze[4],"$",sep="")
+      text_takty[pozice_hranice_klauze[k]+5]<-paste("$",klauze[5],sep="")
+      text_takty[pozice_hranice_klauze[k]+6]<-paste(klauze[6],sep="")
+      text_takty[pozice_hranice_klauze[k]+7]<-paste(klauze[7],"$",sep="")
+    }
+    
+    #reseni pro specificky typ klauze slozene jen z: 1MW+1MW+n-klitik
+    if  (delka_slova_slabiky_cisla[pozice_hranice_klauze[k]+1] == 1 & delka_slova_slabiky_cisla[pozice_hranice_klauze[k]+2] == 1
+         & is.element(klauze[3], seznam_klitik_cisty) == TRUE & length(klauze) == 3)      #pro 1 klitikon
+    {
+      text_takty[pozice_hranice_klauze[k]+2]<-paste(klauze[2],sep="")
+    }
+    
+    if  (delka_slova_slabiky_cisla[pozice_hranice_klauze[k]+1] == 1 & delka_slova_slabiky_cisla[pozice_hranice_klauze[k]+2] == 1
+         & is.element(klauze[4], seznam_klitik_cisty) == TRUE & length(klauze) == 4)      #pro 2 klitika
+    {
+      text_takty[pozice_hranice_klauze[k]+2]<-paste(klauze[2],sep="")
+    }
+    
+    if  (delka_slova_slabiky_cisla[pozice_hranice_klauze[k]+1] == 1 & delka_slova_slabiky_cisla[pozice_hranice_klauze[k]+2] == 1
+         & is.element(klauze[5], seznam_klitik_cisty) == TRUE & length(klauze) == 5)      #pro 3 klitika
+    {
+      text_takty[pozice_hranice_klauze[k]+2]<-paste(klauze[2],sep="")
+    }
+    
+    if  (delka_slova_slabiky_cisla[pozice_hranice_klauze[k]+1] == 1 & delka_slova_slabiky_cisla[pozice_hranice_klauze[k]+2] == 1
+         & is.element(klauze[6], seznam_klitik_cisty) == TRUE & length(klauze) == 6)      #pro 4 klitika
+    {
+      text_takty[pozice_hranice_klauze[k]+2]<-paste(klauze[2],sep="")
+      text_takty[pozice_hranice_klauze[k]+3]<-paste(klauze[3],sep="")
+    }
+    
+    #reseni pro specificky typ klauze slozene jen z: 1MW + 1PW + n-klitik
+    if  (delka_slova_slabiky_cisla[pozice_hranice_klauze[k]+1] == 1 & delka_slova_slabiky_cisla[pozice_hranice_klauze[k]+2] > 1
+         & is.element(klauze[3], seznam_klitik_cisty) == TRUE & length(klauze) == 3)    #pro 1 klitikon
+    {
+      text_takty[pozice_hranice_klauze[k]+2]<-paste(klauze[2],sep="")
+    }
+    
+    if  (delka_slova_slabiky_cisla[pozice_hranice_klauze[k]+1] == 1 & delka_slova_slabiky_cisla[pozice_hranice_klauze[k]+2] > 1
+         & is.element(klauze[4], seznam_klitik_cisty) == TRUE & length(klauze) == 4)   #pro 2 klitika
+    {
+      text_takty[pozice_hranice_klauze[k]+2]<-paste(klauze[2],sep="")
+    }
+    
+    if  (delka_slova_slabiky_cisla[pozice_hranice_klauze[k]+1] == 1 & delka_slova_slabiky_cisla[pozice_hranice_klauze[k]+2] > 1 & delka_slova_slabiky_cisla[pozice_hranice_klauze[k]+2] < 4
+         & is.element(klauze[5], seznam_klitik_cisty) == TRUE & length(klauze) == 5)   #pro 3 klitika
+    {
+      text_takty[pozice_hranice_klauze[k]+2]<-paste(klauze[2],sep="")
+    }
+    
+    if  (delka_slova_slabiky_cisla[pozice_hranice_klauze[k]+1] == 1 & delka_slova_slabiky_cisla[pozice_hranice_klauze[k]+2] > 1 & delka_slova_slabiky_cisla[pozice_hranice_klauze[k]+2] < 5
+         & is.element(klauze[6], seznam_klitik_cisty) == TRUE & length(klauze) == 6)   #pro 4 klitika
+    {
+      text_takty[pozice_hranice_klauze[k]+2]<-paste(klauze[2],sep="")
+    }
+    
+  }
+
+text_takty  
+vysledny_text<-text_takty
+vysledny_text<-gsub("@","$",vysledny_text)
+
+#je treba osetrit pripadne "hluche" mista vznikle predchozimi kroky s klitikama
+for (i in 2:length(vysledny_text))
+  if (substr(vysledny_text[i],1,1) == "$" && substr(vysledny_text[i-1],nchar(vysledny_text[i-1]),nchar(vysledny_text[i-1])) != "$")
+  {
+    vysledny_text[i-1]<-paste(text[i-1],"$",sep="")  
+  }
+
+
+###M pozice
+delka_slova_slabiky_takty<-delka_slova_slabiky_takty[1:pozice_hranice_klauze[1]]
+if (length(pozice_hranice_klauze > 1))
+{
+  vysledny_text_klauze<-c()
+  for (j in 1:(length(pozice_hranice_klauze)-1)) 
+  {
+    vysledny_text_klauze<-vysledny_text[(pozice_hranice_klauze[j]+1):(pozice_hranice_klauze[j+1])]    ##od druhe po posledni				
+    #text_takty<-klauze  #text_takty = odolarovany text  
+    delka_slova_slabiky_klauze<-delka_slova_slabiky[(pozice_hranice_klauze[j]+1):(pozice_hranice_klauze[j+1])] 
+    #bere je postupne, kdyz to dam ted vyjet, vyjede posledni bo projel vsechny postupne a posledni ulozena je prave ta posledni klauze
+    
+    #oznaceni taktu v "textu" z cisel = delek slov ve slabikach  
+    for (i in 1:length(delka_slova_slabiky_klauze))
+    {
+      if (substr(vysledny_text_klauze[i],1,1) == "$")	  delka_slova_slabiky_klauze[i]<-paste("$",delka_slova_slabiky_klauze[i],sep="")
+      if (substr(vysledny_text_klauze[i],nchar(vysledny_text_klauze[i]),nchar(vysledny_text_klauze[i])) == "$") delka_slova_slabiky_klauze[i]<-paste(delka_slova_slabiky_klauze[i],"$",sep="")
+    }
+    
+    delka_slova_slabiky_takty<-c(delka_slova_slabiky_takty,delka_slova_slabiky_klauze)
+    hranice_MT_slabiky_klauze<-delka_slova_slabiky_takty  #vlozim si ten vektor sem bo takhle to mam pojmenovane u 1.klauze,kdyz resim M pozicu
+  }
+  
+  #pocitani delky taktu pred M pozici, tzn. nescita delky slov tvorici takty v F pozici - zpetna poznamka: rekla bych, ze scita prece...
+  #hranice taktu
+  zacatek_MT_klauze<-c()
+  for (i in (pozice_hranice_klauze[1]+1):length(vysledny_text))
+  {
+    if (substr(hranice_MT_slabiky_klauze[i],1,1) == "$") zacatek_MT_klauze<-c(zacatek_MT_klauze,i)
+  }  
+  konec_MT_klauze<-c()   
+  for (i in (pozice_hranice_klauze[1]+1):length(vysledny_text))
+  {
+    if (substr(hranice_MT_slabiky_klauze[i],nchar(hranice_MT_slabiky_klauze[i]),nchar(hranice_MT_slabiky_klauze[i])) == "$") konec_MT_klauze<-c(konec_MT_klauze,i)
+  } 
+  
+  #scitani poctu slabik v taktech na to POZOR
+  #1)REALNE:vytvoril vektor s velikostma (delkama) taktu - realnyma
+  
+  delka_MT_klauze<-rep(0,length(zacatek_MT_klauze)) #mohlo by tam byt i konec_MT, jsou stejne dlouhe
+  for (i in 1:length(delka_MT_klauze))
+    delka_MT_klauze[i]<-sum(delka_slova_slabiky_cisla[zacatek_MT_klauze[i]:konec_MT_klauze[i]])
+  #prevedeni delky MT na ciselne hodnoty pro program
+  delka_MT_klauze_cisla<-as.numeric(delka_MT_klauze)
+  
+  
+  # + delka MT pro cely text, vcetne prvni klauze
+  
+  ##delka MT pro prvni klauzi - tohle vsecko uz mam vypocitane jednou na zacatku, kde resim prvni klauzi...ale tohle je lip pojmenovane
+  zacatek_MT_prvni_klauze<-c()
+  konec_MT_prvni_klauze<-c()
+  hranice_MT_slabiky_prvni_klauze<-hranice_MT_slabiky[1:pozice_hranice_klauze[1]]
+  
+  for (i in 1:pozice_hranice_klauze[1])
+  {
+    if (substr(hranice_MT_slabiky_prvni_klauze[i],1,1) == "$") zacatek_MT_prvni_klauze<-c(zacatek_MT_prvni_klauze,i)
+  }    
+  for (i in 1:pozice_hranice_klauze[1])
+  {
+    if (substr(hranice_MT_slabiky_prvni_klauze[i],nchar(hranice_MT_slabiky_prvni_klauze[i]),nchar(hranice_MT_slabiky_prvni_klauze[i])) == "$") konec_MT_prvni_klauze<-c(konec_MT_prvni_klauze,i)
+  } 
+  
+  delka_MT_prvni_klauze<-rep(0,length(zacatek_MT_prvni_klauze)) #mohlo by tam byt i konec_MT, jsou stejne dlouhe
+  for (i in 1:length(delka_MT_prvni_klauze))
+    delka_MT_prvni_klauze[i]<-sum(delka_slova_slabiky_cisla[zacatek_MT_prvni_klauze[i]:konec_MT_prvni_klauze[i]])
+  #prevedeni delky MT na ciselne hodnoty pro program
+  delka_MT_prvni_klauze_cisla<-as.numeric(delka_MT_prvni_klauze)
+  
+  ##spojeni delky MT prvni klauze a delky MT dalsich klauzi
+  pocet_MT_cely_text<-length(delka_MT_prvni_klauze_cisla) + length(delka_MT_klauze_cisla)
+  delka_MT_cely_text<-c(delka_MT_prvni_klauze_cisla,delka_MT_klauze_cisla)
+  
+  
+  #2)POMOCNE:do pozice_jednicek_klauze by se mi pak zapocitaly i MW,ktere jsou jako posledni slovo textu samostatny MT,a to nechcu,musim to nejak omezit
+  #trochu na silu reseni:prepisu velikost vsech MT na konci klauze na 4(random cislo),aby to preskocil
+  text_pomocna_delka_slabik_cisla<-delka_slova_slabiky_cisla
+  for (i in 1:length(text_pomocna_delka_slabik_cisla))
+    text_pomocna_delka_slabik_cisla[pozice_hranice_klauze[i]]<-paste("4",sep="")
+  
+  text_pomocna_delka_slabik_cisla<-as.numeric(text_pomocna_delka_slabik_cisla)  #prevede text na ciselne hodnoty
+  pomocna_delka_MT_klauze<-rep(0,length(zacatek_MT_klauze))
+  for (i in 1:length(pomocna_delka_MT_klauze))
+    pomocna_delka_MT_klauze[i]<-sum(text_pomocna_delka_slabik_cisla[zacatek_MT_klauze[i]:konec_MT_klauze[i]])
+  #prevedeni delky MT na ciselne hodnoty pro program
+  pomocna_delka_MT_klauze_cisla<-as.numeric(pomocna_delka_MT_klauze)
+  
+  #kde je medialni pozice
+  zacatek_M_pozice_klauze<-c()
+  konec_M_pozice_klauze<-c()
+  pozice_jednicek_klauze<-c()  #pozice MW v M pozici :D 
+  vetsi_rozdil_pozice_klauze<-c() #pozice rozdilu vetsiho nez 1, tzn. ze je tam viceslabicne slovo nebo slov
+  
+  #hledam pozice jednicek (nebudou to vlastne M pozice uz? bo v I pozici nebude MW samostatne)
+  for (i in 1:(length(pomocna_delka_MT_klauze_cisla)-1))
+  {
+    if (pomocna_delka_MT_klauze_cisla[i] == 1)    pozice_jednicek_klauze<-c(pozice_jednicek_klauze,i)
+  } 
+  
+  ###pro 1 MW v klauzi v M pozici
+  if (length(pozice_jednicek_klauze) == 1) 
+  {
+    #pocitam pocet slabik pred MW v M pozici, resp. scitam vsechny slabiky az do konce (pro MT),zajima me realny pocet slabik vsude
+    kumulativni_delka_MT_klauze<-rep(0,length(delka_MT_klauze))
+    for (i in 1:length(delka_MT_klauze))
+    {
+      kumulativni_delka_MT_klauze[i]<-sum(delka_MT_klauze_cisla[1:i])
+    }
+    kumulativni_delka_MT_klauze
+    #to same pro slova  
+    kumulativni_delka_slov_klauze<-rep(0,(length(delka_slova_slabiky_cisla)-pozice_hranice_klauze[1]))
+    for (i in 1:length(kumulativni_delka_slov_klauze))
+    {
+      kumulativni_delka_slov_klauze[i]<-sum(delka_slova_slabiky_cisla[(pozice_hranice_klauze[1]+1):(pozice_hranice_klauze[1]+i)])
+    }
+    kumulativni_delka_slov_klauze
+    
+    #hledam pozici M MW slova v textu
+    #prvni najdu tu pozici v klauzich bez te prvni
+    MW_M_pozice_text_klauze<-which(kumulativni_delka_MT_klauze[pozice_jednicek_klauze]==kumulativni_delka_slov_klauze) 
+    #ted tu pozici v celem textu
+    MW_M_pozice_text_cely<-MW_M_pozice_text_klauze+pozice_hranice_klauze[1]
+    
+    #dolaruju 1 MW v M pozici v textu
+    vysledny_text[MW_M_pozice_text_cely]<-paste(text[MW_M_pozice_text_cely],"$",sep="")
+    vysledny_text[MW_M_pozice_text_cely-1]<-paste("$",text[MW_M_pozice_text_cely-1],sep="")
+    
+    ##musim prepocitat delku MT bo jsem spojovala slova...
+    delka_MT_klauze_prvni<-delka_MT_klauze
+    delka_MT_klauze_cisla_prvni<-delka_MT_klauze_cisla
+    delka_MT_klauze<-rep(0,length(delka_MT_klauze_prvni)-1) #bo 1 MW,takze se ta length zmensi o jedno
+    delka_MT_klauze[1:(pozice_jednicek_klauze-2)]<-delka_MT_klauze_prvni[1:(pozice_jednicek_klauze-2)]
+    delka_MT_klauze[pozice_jednicek_klauze-1]<-delka_MT_klauze_prvni[pozice_jednicek_klauze-1]+1
+    for (i in pozice_jednicek_klauze:length(delka_MT_klauze))
+      delka_MT_klauze[i]<-delka_MT_klauze_prvni[i+1]
+    delka_MT_klauze_cisla<-as.numeric(delka_MT_klauze)
+  }
+  
+  ###pro vice MW v M pozici v 1 klauzi (tzn. v celem textu jsou M pozice jen v jedine klauzi)
+  if (length(pozice_jednicek_klauze) > 1) 
+  {
+    #kde je medialni pozice
+    zacatek_M_pozice_klauze<-c()
+    konec_M_pozice_klauze<-c()
+    pozice_jednicek_klauze<-c()  #pozice MW v M pozici :D 
+    vetsi_rozdil_pozice_klauze<-c() #pozice rozdilu vetsiho nez 1, tzn. ze je tam viceslabicne slovo nebo slov
+    
+    #hledam pozice jednicek 
+    for (i in 1:(length(pomocna_delka_MT_klauze_cisla)-1))
+    {
+      if (pomocna_delka_MT_klauze_cisla[i] == 1)    pozice_jednicek_klauze<-c(pozice_jednicek_klauze,i)
+    } 
+    
+    rozdil_pozice_jednicek_klauze<-rep(0,length(pozice_jednicek_klauze)-1) #kdyz 1, nasleduje dalsi MW, kdyz vice nez 1, nasleduje viceslabicne slovo
+    for (i in 1:length(rozdil_pozice_jednicek_klauze))
+      rozdil_pozice_jednicek_klauze[i]<-pozice_jednicek_klauze[i+1]-pozice_jednicek_klauze[i]
+    pocet_M_pozic_klauze<- 1   #znamena to spis pocet M posloupnosti
+    for (i in 1:length(rozdil_pozice_jednicek_klauze)) 	
+      if (rozdil_pozice_jednicek_klauze[i] > 1) 
+      {
+        pocet_M_pozic_klauze<-pocet_M_pozic_klauze+1
+      }
+    if (pocet_M_pozic_klauze == 1)  # POZOR tenhle if konci az o dost nize,vse odsad plati jen,je-li v klauzi 1 posloupnost MW(S),nad if (pocet_M_pozic > 1) 
+    { 
+      zacatek_M_pozice_klauze<-pozice_jednicek_klauze[1]
+      konec_M_pozice_klauze<-pozice_jednicek_klauze[length(pozice_jednicek_klauze)]
+      delka_posloupnosti_MWS_klauze<-konec_M_pozice_klauze - zacatek_M_pozice_klauze + 1
+      
+      ###pro 1 posloupnost MWS v M pozici
+      #pocitam pocet slabik pred zacatek_M_pozice_klauze, resp. scitam vsechny slabiky az do konce (pro MT)
+      kumulativni_delka_MT_klauze<-rep(0,length(delka_MT_klauze))
+      for (i in 1:length(delka_MT_klauze))
+      {
+        kumulativni_delka_MT_klauze[i]<-sum(delka_MT_klauze[1:i])
+      }
+      kumulativni_delka_MT_klauze
+      
+      #to same pro slova  
+      kumulativni_delka_slov_klauze<-rep(0,(length(delka_slova_slabiky_cisla)-pozice_hranice_klauze[1]))
+      for (i in 1:length(kumulativni_delka_slov_klauze))
+      {
+        kumulativni_delka_slov_klauze[i]<-sum(delka_slova_slabiky_cisla[(pozice_hranice_klauze[1]+1):(pozice_hranice_klauze[1]+i)])
+      }
+      kumulativni_delka_slov_klauze
+      
+      #hledam M pozice v textu
+      M_pozice_kumulativni_delka_MT_klauze<-rep(0,length(pozice_jednicek_klauze))
+      for (i in 1:length(M_pozice_kumulativni_delka_MT_klauze))
+        M_pozice_kumulativni_delka_MT_klauze[i]<-kumulativni_delka_MT_klauze[pozice_jednicek_klauze[i]]
+      MWS_M_pozice_text_cely<-match(M_pozice_kumulativni_delka_MT_klauze,kumulativni_delka_slov_klauze)+pozice_hranice_klauze[1]
+      
+      ##dolaruju     
+      #pro posloupnost 2 MW v M pozici
+      if (delka_posloupnosti_MWS_klauze == 2 & length(klauze) > 1 )     #neresi zatim ale delku slova pred tim
+      { 
+        vysledny_text[MWS_M_pozice_text_cely[1]]<-paste("$",text[MWS_M_pozice_text_cely[1]],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[2]]<-paste(text[MWS_M_pozice_text_cely[2]],"$",sep="")
+        
+        if (delka_slova_slabiky_cisla[MWS_M_pozice_text_cely[1]-1] == 2)   #s ohledem na delku predesleho slova
+        {
+          vysledny_text[MWS_M_pozice_text_cely[1]-1]<-paste("$",text[MWS_M_pozice_text_cely[1]-1],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[1]]<-paste(text[MWS_M_pozice_text_cely[1]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[2]]<-paste(text[MWS_M_pozice_text_cely[2]],"$",sep="")
+        }
+        if (delka_slova_slabiky_cisla[MWS_M_pozice_text_cely[1]-1] == 3)   #s ohledem na delku predesleho slova
+        {
+          vysledny_text[MWS_M_pozice_text_cely[1]-1]<-paste("$",text[MWS_M_pozice_text_cely[1]-1],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[1]]<-paste(text[MWS_M_pozice_text_cely[1]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[2]]<-paste(text[MWS_M_pozice_text_cely[2]],"$",sep="")
+        }
+        if (delka_slova_slabiky_cisla[MWS_M_pozice_text_cely[1]-1] == 4)   #s ohledem na delku predesleho slova
+        {
+          vysledny_text[MWS_M_pozice_text_cely[1]-1]<-paste("$",text[MWS_M_pozice_text_cely[1]-1],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[1]]<-paste(text[MWS_M_pozice_text_cely[1]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[2]]<-paste(text[MWS_M_pozice_text_cely[2]],"$",sep="")
+        }
+      }
+      
+      #pro posloupnost 3 MW v M pozici
+      if (delka_posloupnosti_MWS_klauze == 3 & length(klauze) > 1 )     #neresi zatim ale delku slova pred tim
+      { 
+        vysledny_text[MWS_M_pozice_text_cely[1]]<-paste("$",text[MWS_M_pozice_text_cely[1]],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[2]]<-paste(text[MWS_M_pozice_text_cely[2]],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[3]]<-paste(text[MWS_M_pozice_text_cely[3]],"$",sep="")
+        
+        if (delka_slova_slabiky_cisla[MWS_M_pozice_text_cely[1]-1] == 2)   #s ohledem na delku predesleho slova
+        {
+          vysledny_text[MWS_M_pozice_text_cely[1]-1]<-paste("$",text[MWS_M_pozice_text_cely[1]-1],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[1]]<-paste(text[MWS_M_pozice_text_cely[1]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[2]]<-paste(text[MWS_M_pozice_text_cely[2]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[3]]<-paste(text[MWS_M_pozice_text_cely[3]],"$",sep="")
+        }
+        if (delka_slova_slabiky_cisla[MWS_M_pozice_text_cely[1]-1] == 3)   #s ohledem na delku predesleho slova
+        {
+          vysledny_text[MWS_M_pozice_text_cely[1]-1]<-paste("$",text[MWS_M_pozice_text_cely[1]-1],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[1]]<-paste(text[MWS_M_pozice_text_cely[1]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[2]]<-paste(text[MWS_M_pozice_text_cely[2]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[3]]<-paste(text[MWS_M_pozice_text_cely[3]],"$",sep="")
+        }
+      }
+      
+      #pro posloupnost 4 MW v M pozici
+      if (delka_posloupnosti_MWS_klauze == 4 & length(klauze) > 1 )     #neresi zatim ale delku slova pred tim
+      { 
+        vysledny_text[MWS_M_pozice_text_cely[1]]<-paste("$",text[MWS_M_pozice_text_cely[1]],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[2]]<-paste(text[MWS_M_pozice_text_cely[2]],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[3]]<-paste(text[MWS_M_pozice_text_cely[3]],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[4]]<-paste(text[MWS_M_pozice_text_cely[4]],"$",sep="")
+        
+        if (delka_slova_slabiky_cisla[MWS_M_pozice_text_cely[1]-1] == 2)   #s ohledem na delku predesleho slova
+        {
+          vysledny_text[MWS_M_pozice_text_cely[1]-1]<-paste("$",text[MWS_M_pozice_text_cely[1]-1],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[1]]<-paste(text[MWS_M_pozice_text_cely[1]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[2]]<-paste(text[MWS_M_pozice_text_cely[2]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[3]]<-paste(text[MWS_M_pozice_text_cely[3]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[4]]<-paste(text[MWS_M_pozice_text_cely[4]],"$",sep="")
+        }
+        if (delka_slova_slabiky_cisla[MWS_M_pozice_text_cely[1]-1] == 3)   #s ohledem na delku predesleho slova
+        {
+          vysledny_text[MWS_M_pozice_text_cely[1]-1]<-paste("$",text[MWS_M_pozice_text_cely[1]-1],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[1]]<-paste(text[MWS_M_pozice_text_cely[1]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[2]]<-paste(text[MWS_M_pozice_text_cely[2]],"$",sep="")
+          vysledny_text[MWS_M_pozice_text_cely[3]]<-paste("$",text[MWS_M_pozice_text_cely[3]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[4]]<-paste(text[MWS_M_pozice_text_cely[4]],"$",sep="")
+        }
+        if (delka_slova_slabiky_cisla[MWS_M_pozice_text_cely[1]-1] == 4)   #s ohledem na delku predesleho slova
+        {
+          vysledny_text[MWS_M_pozice_text_cely[1]-1]<-paste("$",text[MWS_M_pozice_text_cely[1]-1],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[1]]<-paste(text[MWS_M_pozice_text_cely[1]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[2]]<-paste(text[MWS_M_pozice_text_cely[2]],"$",sep="")
+          vysledny_text[MWS_M_pozice_text_cely[3]]<-paste("$",text[MWS_M_pozice_text_cely[3]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[4]]<-paste(text[MWS_M_pozice_text_cely[4]],"$",sep="")
+        }
+      }
+      
+      #pro posloupnost 5 MW v M pozici
+      if (delka_posloupnosti_MWS_klauze == 5 & length(klauze) > 1 )     #neresi zatim ale delku slova pred tim
+      { 
+        
+        if (delka_slova_slabiky_cisla[MWS_M_pozice_text_cely[1]-1] == 2)   #s ohledem na delku predesleho slova
+        {
+          vysledny_text[MWS_M_pozice_text_cely[1]-1]<-paste("$",text[MWS_M_pozice_text_cely[1]-1],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[1]]<-paste(text[MWS_M_pozice_text_cely[1]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[2]]<-paste(text[MWS_M_pozice_text_cely[2]],"$",sep="")
+          vysledny_text[MWS_M_pozice_text_cely[3]]<-paste("$",text[MWS_M_pozice_text_cely[3]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[4]]<-paste(text[MWS_M_pozice_text_cely[4]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[5]]<-paste(text[MWS_M_pozice_text_cely[5]],"$",sep="")
+        }
+        if (delka_slova_slabiky_cisla[MWS_M_pozice_text_cely[1]-1] == 3)   #s ohledem na delku predesleho slova
+        {
+          vysledny_text[MWS_M_pozice_text_cely[1]-1]<-paste("$",text[MWS_M_pozice_text_cely[1]-1],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[1]]<-paste(text[MWS_M_pozice_text_cely[1]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[2]]<-paste(text[MWS_M_pozice_text_cely[2]],"$",sep="")
+          vysledny_text[MWS_M_pozice_text_cely[3]]<-paste("$",text[MWS_M_pozice_text_cely[3]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[4]]<-paste(text[MWS_M_pozice_text_cely[4]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[5]]<-paste(text[MWS_M_pozice_text_cely[5]],"$",sep="")
+        }
+        if (delka_slova_slabiky_cisla[MWS_M_pozice_text_cely[1]-1] == 4)   #s ohledem na delku predesleho slova
+        {
+          vysledny_text[MWS_M_pozice_text_cely[1]]<-paste("$",text[MWS_M_pozice_text_cely[1]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[2]]<-paste(text[MWS_M_pozice_text_cely[2]],"$",sep="")
+          vysledny_text[MWS_M_pozice_text_cely[3]]<-paste("$",text[MWS_M_pozice_text_cely[3]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[4]]<-paste(text[MWS_M_pozice_text_cely[4]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[5]]<-paste(text[MWS_M_pozice_text_cely[5]],"$",sep="")
+        }
+        if (delka_slova_slabiky_cisla[MWS_M_pozice_text_cely[1]-1] > 4)   #s ohledem na delku predesleho slova
+        {
+          vysledny_text[MWS_M_pozice_text_cely[1]]<-paste("$",text[MWS_M_pozice_text_cely[1]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[2]]<-paste(text[MWS_M_pozice_text_cely[2]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[3]]<-paste(text[MWS_M_pozice_text_cely[3]],"$",sep="")
+          vysledny_text[MWS_M_pozice_text_cely[4]]<-paste("$",text[MWS_M_pozice_text_cely[4]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[5]]<-paste(text[MWS_M_pozice_text_cely[5]],"$",sep="")
+        }
+      }
+      
+      #pro posloupnost 6 MW v M pozici
+      if (delka_posloupnosti_MWS_klauze == 6 & length(klauze) > 1 )     #neresi zatim ale delku slova pred tim
+      { 
+        
+        if (delka_slova_slabiky_cisla[MWS_M_pozice_text_cely[1]-1] == 2)   #s ohledem na delku predesleho slova
+        {
+          vysledny_text[MWS_M_pozice_text_cely[1]-1]<-paste("$",text[MWS_M_pozice_text_cely[1]-1],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[1]]<-paste(text[MWS_M_pozice_text_cely[1]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[2]]<-paste(text[MWS_M_pozice_text_cely[2]],"$",sep="")
+          vysledny_text[MWS_M_pozice_text_cely[3]]<-paste("$",text[MWS_M_pozice_text_cely[3]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[4]]<-paste(text[MWS_M_pozice_text_cely[4]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[5]]<-paste(text[MWS_M_pozice_text_cely[5]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[6]]<-paste(text[MWS_M_pozice_text_cely[6]],"$",sep="")
+        }
+        if (delka_slova_slabiky_cisla[MWS_M_pozice_text_cely[1]-1] == 3)   #s ohledem na delku predesleho slova
+        {
+          vysledny_text[MWS_M_pozice_text_cely[1]-1]<-paste("$",text[MWS_M_pozice_text_cely[1]-1],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[1]]<-paste(text[MWS_M_pozice_text_cely[1]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[2]]<-paste(text[MWS_M_pozice_text_cely[2]],"$",sep="")
+          vysledny_text[MWS_M_pozice_text_cely[3]]<-paste("$",text[MWS_M_pozice_text_cely[3]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[4]]<-paste(text[MWS_M_pozice_text_cely[4]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[5]]<-paste(text[MWS_M_pozice_text_cely[5]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[6]]<-paste(text[MWS_M_pozice_text_cely[6]],"$",sep="")
+        }
+        if (delka_slova_slabiky_cisla[MWS_M_pozice_text_cely[1]-1] > 3)   #s ohledem na delku predesleho slova
+        {
+          vysledny_text[MWS_M_pozice_text_cely[1]]<-paste("$",text[MWS_M_pozice_text_cely[1]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[2]]<-paste(text[MWS_M_pozice_text_cely[2]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[3]]<-paste(text[MWS_M_pozice_text_cely[3]],"$",sep="")
+          vysledny_text[MWS_M_pozice_text_cely[4]]<-paste("$",text[MWS_M_pozice_text_cely[4]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[5]]<-paste(text[MWS_M_pozice_text_cely[5]],sep="")
+          vysledny_text[MWS_M_pozice_text_cely[6]]<-paste(text[MWS_M_pozice_text_cely[6]],"$",sep="")
+        }
+      }
+    }  #konec toho ifu,u ktereho mam pozor,ze se konci az nizko
+  }
+}  # asi tu ma byt ta zavora
+#mozna mi tu chybi jeste slozena zavora...
+
+###pro vice posloupnosti v klauzich - naprosta vetsina textu, M pozice ruzne delky v ruznych klauzich
+if (pocet_M_pozic_klauze > 1) 
+{
+  
+  pomocna_promenna_klauze<-c(0,which(rozdil_pozice_jednicek_klauze > 1),length(pozice_jednicek_klauze))
+  for (i in 1:(length(pomocna_promenna_klauze) - 1))
+    zacatek_M_pozice_klauze<-c(zacatek_M_pozice_klauze,pomocna_promenna_klauze[i]+1)    #pozice v pozice_jednicek_klauze!
+  for (i in 2:length(pomocna_promenna_klauze))
+    konec_M_pozice_klauze<-c(konec_M_pozice_klauze,pomocna_promenna_klauze[i])          #pozice v pozice_jednicek_klauze!
+  delka_posloupnosti_MWS_klauze<-konec_M_pozice_klauze - zacatek_M_pozice_klauze + 1
+  
+  #hledam pozice posloupnosti MW(S) v textu
+  kumulativni_delka_MT_klauze<-rep(0,length(delka_MT_klauze))
+  for (j in 1:length(delka_MT_klauze))
+  {
+    kumulativni_delka_MT_klauze[j]<-sum(delka_MT_klauze[1:j])
+  }
+  kumulativni_delka_MT_klauze
+  
+  #to same pro slova
+  kumulativni_delka_slov_klauze<-rep(0,(length(delka_slova_slabiky_cisla)-pozice_hranice_klauze[1]))
+  for (j in 1:length(kumulativni_delka_slov_klauze))
+  {
+    kumulativni_delka_slov_klauze[j]<-sum(delka_slova_slabiky_cisla[(pozice_hranice_klauze[1]+1):(pozice_hranice_klauze[1]+j)])
+  }
+  kumulativni_delka_slov_klauze
+  
+  #hledam M pozice v textu
+  M_pozice_kumulativni_delka_MT_klauze<-rep(0,length(pozice_jednicek_klauze))
+  for (i in 1:length(M_pozice_kumulativni_delka_MT_klauze))
+    M_pozice_kumulativni_delka_MT_klauze[i]<-kumulativni_delka_MT_klauze[pozice_jednicek_klauze[i]]
+  MWS_M_pozice_text_cely<-match(M_pozice_kumulativni_delka_MT_klauze,kumulativni_delka_slov_klauze)+pozice_hranice_klauze[1]
+  
+  ####uprava delek slov pred M pozici - kdyz totiz pred M pozici je PW jemuz predchazi 1 MW v I pozici - musim zvetsit delku PW o 1
+  upravena_delka_slova_slabiky_cisla<-delka_slova_slabiky_cisla
+  for (i in 1:pocet_M_pozic_klauze)
+  {
+    if (substr(delka_slova_slabiky_takty[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1],1,1) != "$")
+      upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1]<-delka_slova_slabiky_cisla[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1]+1
+  }
+  
+  
+  ##dolaruju
+  for (i in 1:pocet_M_pozic_klauze) #prvni se postavi na prvni pozici,udela vse do konce;pak se postavi na druhou atd, tzn. projede to postupne vsechny posloupnosti
+  {
+    #pro delku posloupnosti 1 (1 MW)
+    if  (delka_posloupnosti_MWS_klauze[i] == 1) 
+    {
+      vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1]<-paste("$",text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1],sep="")
+      vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]],"$",sep="")
+    }
+    
+    #pro delku posloupnosti 2
+    if  (delka_posloupnosti_MWS_klauze[i] == 2)      #neresi zatim ale delku slova pred tim
+    {
+      vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]]<-paste("$",text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]],sep="")
+      vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+1]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+1],"$",sep="")
+      
+      if (upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1] == 2)   #s ohledem na delku predesleho MT
+      { 
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1]<-paste("$",text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+1]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+1],"$",sep="")
+      }
+      if (upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1] == 3)   #s ohledem na delku predesleho MT
+      { 
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1]<-paste("$",text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+1]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+1],"$",sep="")
+      }
+      if (upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1] == 4)   #s ohledem na delku predesleho MT
+      { 
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1]<-paste("$",text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+1]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+1],"$",sep="")
+      }
+    }
+    
+    #pro delku posloupnosti 3
+    if  (delka_posloupnosti_MWS_klauze[i] == 3)      #neresi zatim ale delku slova pred tim
+    {
+      vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]]<-paste("$",text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]],sep="")
+      vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+1]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+1],sep="")
+      vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+2]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+2],"$",sep="")
+      
+      if (upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1] == 2)   #s ohledem na delku predesleho MT
+      { 
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1]<-paste("$",text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+1]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+1],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+2]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+2],"$",sep="")
+      }
+      if (upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1] == 3)   #s ohledem na delku predesleho MT
+      { 
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1]<-paste("$",text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+1]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+1],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+2]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+2],"$",sep="")
+      }
+    }
+    
+    #pro delku posloupnosti 4
+    if  (delka_posloupnosti_MWS_klauze[i] == 4)      #neresi zatim ale delku slova pred tim
+    {
+      vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]]<-paste("$",text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]],sep="")
+      vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+1]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+1],sep="")
+      vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+2]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+2],sep="")
+      vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+3]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+3],"$",sep="")
+      
+      if (upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1] == 2)   #s ohledem na delku predesleho MT
+      { 
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1]<-paste("$",text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+1]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+1],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+2]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+2],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+3]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+3],"$",sep="")
+      }
+      if (upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1] == 3)   #s ohledem na delku predesleho MT
+      { 
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1]<-paste("$",text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+1]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+1],"$",sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+2]<-paste("$",text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+2],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+3]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+3],"$",sep="")
+      }
+      if (upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1] == 4)   #s ohledem na delku predesleho MT
+      { 
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1]<-paste("$",text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+1]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+1],"$",sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+2]<-paste("$",text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+2],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+3]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+3],"$",sep="")
+      }
+    }
+    
+    #pro delku posloupnosti 5
+    if  (delka_posloupnosti_MWS_klauze[i] == 5)      #neresi zatim ale delku slova pred tim
+    {
+      vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]]<-paste("$",text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]],sep="")
+      vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+1]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+1],sep="")
+      vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+2]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+2],"$",sep="")
+      vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+3]<-paste("$",text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+3],sep="")
+      vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+4]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+4],"$",sep="")
+      
+      if (upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1] == 2)   #s ohledem na delku predesleho MT
+      { 
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1]<-paste("$",text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+1]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+1],"$",sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+2]<-paste("$",text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+2],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+3]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+3],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+4]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+4],"$",sep="")
+      }
+      if (upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1] == 3)   #s ohledem na delku predesleho MT
+      { 
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1]<-paste("$",text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+1]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+1],"$",sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+2]<-paste("$",text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+2],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+3]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+3],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+4]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+4],"$",sep="")
+      }
+      if (upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1] == 4)   #s ohledem na delku predesleho MT
+      { 
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]]<-paste("$",text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+1]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+1],"$",sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+2]<-paste("$",text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+2],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+3]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+3],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+4]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+4],"$",sep="")
+      }
+    }
+    
+    #pro delku posloupnosti 6
+    if  (delka_posloupnosti_MWS_klauze[i] == 6)      #neresi zatim ale delku slova pred tim
+    {
+      vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]]<-paste("$",text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]],sep="")
+      vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+1]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+1],sep="")
+      vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+2]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+2],"$",sep="")
+      vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+3]<-paste("$",text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+3],sep="")
+      vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+4]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+4],sep="")
+      vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+5]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+5],"$",sep="")
+      
+      if (upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1] == 2)   #s ohledem na delku predesleho MT
+      { 
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1]<-paste("$",text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+1]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+1],"$",sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+2]<-paste("$",text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+2],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+3]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+3],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+4]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+4],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+5]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+5],"$",sep="")
+      }
+      if (upravena_delka_slova_slabiky_cisla[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1] == 3)   #s ohledem na delku predesleho MT
+      { 
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1]<-paste("$",text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]-1],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+1]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+1],"$",sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+2]<-paste("$",text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+2],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+3]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+3],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+4]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+4],sep="")
+        vysledny_text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+5]<-paste(text[MWS_M_pozice_text_cely[zacatek_M_pozice_klauze[i]]+5],"$",sep="")
+      }
+    }
+    
+    
+  }  #konec: for (i in 1:pocet_M_pozic_klauze)
+  
+  #############pomocna_delka_MT_klauze_cisla[delka_posloupnosti_MWS_klauze[i]-1]
+}
+
+#reseni pro divnosti,kdyz v I pozici MW, pak PW, pak MW pak neco dalsiho
+for (i in 1:(length(pozice_hranice_klauze)-1))
+  if (substr(vysledny_text[pozice_hranice_klauze[i]+1],nchar(vysledny_text[pozice_hranice_klauze[i]+1]),nchar(vysledny_text[pozice_hranice_klauze[i]+1])) != "$" & substr(vysledny_text[pozice_hranice_klauze[i]+2],1,1) == "$") 
+  {
+    vysledny_text[pozice_hranice_klauze[i]+2]<-paste(text[pozice_hranice_klauze[i]+2])
+  }
+
+
+#vysledny_text<-paste(vysledny_text,collapse=" ")
+#vysledny_text
+#write.table(vysledny_text,file="D:/program_MT/texty_segmentovane/nazev_souboru.txt", quote=F)
+
+
+### začátke počítaní dat pro MAL tokens
+#oznaceni taktu v "textu" z delek slov ve slabikach
+delka_taktu_slabiky<-delka_slova_slabiky_cisla
+for (i in 1:(length(delka_slova_slabiky_cisla)))
+{
+  if (substr(vysledny_text[i],1,1) == "$")
+    delka_taktu_slabiky[i]<-paste("$",delka_taktu_slabiky[i],sep="")
+  if (substr(vysledny_text[i],nchar(vysledny_text[i]),nchar(vysledny_text[i])) == "$")
+    delka_taktu_slabiky[i]<-paste(delka_taktu_slabiky[i],"$",sep="")
+}
+
+#pozice zacatku a koncu taktu ve vyslednem textu - asi ani nepotrebuju nakonec...
+zacatek_taktu_vysledny_text<-c()
+for (i in 1:length(vysledny_text))
+{
+  if (substr(vysledny_text[i],1,1) == "$") zacatek_taktu_vysledny_text<-c(zacatek_taktu_vysledny_text,i)
+}  
+
+konec_taktu_vysledny_text<-c()   
+for (i in 1:length(vysledny_text))
+{
+  if (substr(vysledny_text[i],nchar(vysledny_text[i]),nchar(vysledny_text[i])) == "$") konec_taktu_vysledny_text<-c(konec_taktu_vysledny_text,i)
+} 
+
+
+#pocitam delku taktu ve vyslednem textu
+#zacatek taktu ve vyslednem txt
+zacatek_taktu_vysledny_text<-c()
+for (i in 1:length(vysledny_text))
+{
+  if (substr(vysledny_text[i],1,1) == "$") zacatek_taktu_vysledny_text<-c(zacatek_taktu_vysledny_text,i)
+}  
+
+#konec taktu ve vyslednem txt
+konec_taktu_vysledny_text<-c()   
+for (i in 1:length(vysledny_text))
+{
+  if (substr(vysledny_text[i],nchar(vysledny_text[i]),nchar(vysledny_text[i])) == "$") konec_taktu_vysledny_text<-c(konec_taktu_vysledny_text,i)
+} 
+
+#delka taktu ve slabikach vyslednem txt
+delka_taktu_vysledny_text<-rep(0,length(zacatek_taktu_vysledny_text))
+for (i in 1:length(zacatek_taktu_vysledny_text))
+{
+  delka_taktu_vysledny_text[i]<-sum(delka_slova_slabiky_cisla[(zacatek_taktu_vysledny_text[i]):(konec_taktu_vysledny_text[i])])
+}
+
+#pocitam delku taktu ve fonemech ve vyslednem txt
+text_substituce_grafiky<-strsplit(text_puvodni_upraveny_slabiczech, " ")  #pozor na to, vytvori promennou "list" a ne "vektor", chova se jinak a pry hrozne debilne
+delka_taktu_fonemy<-rep(0,length(zacatek_taktu_vysledny_text))
+for (i in 1:length(zacatek_taktu_vysledny_text))
+{
+  delka_taktu_fonemy[i]<-sum(nchar(text_substituce_grafiky[[1]][(zacatek_taktu_vysledny_text[i]):(konec_taktu_vysledny_text[i])]))
+}
+
+
+#data pro vypocet Menzarathova-Altmannova zakona pro tokens
+max_delka_taktu_slabiky<-max(delka_taktu_vysledny_text)
+prumerna_delka_slabik<-rep(0,max_delka_taktu_slabiky)
+frekvence_delek_slabik<-rep(0,max_delka_taktu_slabiky)
+
+for (i in 1:length(delka_taktu_vysledny_text))
+{
+  prumerna_delka_slabik[delka_taktu_vysledny_text[i]]<-prumerna_delka_slabik[delka_taktu_vysledny_text[i]]+delka_taktu_fonemy[i]
+  frekvence_delek_slabik[delka_taktu_vysledny_text[i]]<-frekvence_delek_slabik[delka_taktu_vysledny_text[i]]+1
+}
+for (i in 1:length(prumerna_delka_slabik))
+{
+  prumerna_delka_slabik[i]<-prumerna_delka_slabik[i]/(i*frekvence_delek_slabik[i])
+}
+
+
+
+### počítání dat pro MAL types
+vysledny_text_slabiky<-text_slabiky
+
+
+for (i in 1:(length(vysledny_text)))
+{
+  if (substr(vysledny_text[i],1,1) == "$")
+    vysledny_text_slabiky[i]<-paste("$",vysledny_text_slabiky[i],sep="")
+  if (substr(vysledny_text[i],nchar(vysledny_text[i]),nchar(vysledny_text[i])) == "$")
+    vysledny_text_slabiky[i]<-paste(vysledny_text_slabiky[i],"$",sep="")
+}
+
+#tvorim vektor, kde 1 polozka = 1 MT   !!!!!odstranit dolary z prvni a posledni pozice!!!!
+takty<-paste(vysledny_text,collapse=" ")
+takty<-gsub("\\$ \\$", "\\@", takty)
+takty<-gsub("\\$", "", takty)
+takty<-strsplit(takty, split = "\\@")
+takty<-takty[[1]]
+#tvorim seznam unikatnich types
+takty<-unique(takty)
+
+#delam to same s taktama rozdelenyma na slabiky...aspon doufam
+takty_slabiky<-paste(vysledny_text_slabiky, collapse = " ")
+takty_slabiky<-gsub("\\$ \\$", "\\@", takty_slabiky)
+takty_slabiky<-gsub("\\$", "", takty_slabiky)
+takty_slabiky<-strsplit(takty_slabiky, split = "\\@")
+takty_slabiky<-takty_slabiky[[1]]
+#tvorim seznam unikatnich types
+takty_slabiky<-unique(takty_slabiky)
+
+#potrebuju vedet delku jednotlivych polozek ve slabikach a ve fonemech...si myslim...
+takty_foneticky<-gsub("-", "", takty_slabiky)
+takty_foneticky_bez_mezer<-gsub(" ", "", takty_foneticky)
+takty_slabiky_pomlcky<-gsub(" ", "-", takty_slabiky) #hranice slabik dany pomlckami - tzn.i misto mezer
+
+#takty_slabiky_pocet<-rep(0,length(takty_slabiky))
+pocet_znaku_takty<-nchar(takty_foneticky_bez_mezer)  
+pocet_znaku_takty_slabiky<-nchar(takty_slabiky_pomlcky)
+takty_slabiky_pocet<-(pocet_znaku_takty_slabiky - pocet_znaku_takty) + 1
+
+#ted potrebuju delku ve fonemech?
+takty_fonemy_pocet<-nchar(takty_foneticky_bez_mezer)
+
+prumerna_delka_slabik_types<-rep(0,max_delka_taktu_slabiky)
+frekvence_delek_slabik_types<-rep(0,max_delka_taktu_slabiky)
+for (i in 1:length(takty_slabiky_pocet))
+{
+  prumerna_delka_slabik_types[takty_slabiky_pocet[i]]<-prumerna_delka_slabik_types[takty_slabiky_pocet[i]]+takty_fonemy_pocet[i]
+  frekvence_delek_slabik_types[takty_slabiky_pocet[i]]<-frekvence_delek_slabik_types[takty_slabiky_pocet[i]]+1
+}
+
+for (i in 1:length(prumerna_delka_slabik_types))
+{
+  prumerna_delka_slabik_types[i]<-prumerna_delka_slabik_types[i]/(i*frekvence_delek_slabik_types[i])
+}
+
+
+
+############################################################################################################################################################
+### VÝSLEDKY
+
+### segmentovaný text
+vysledny_text<-paste(vysledny_text,collapse=" ")
+vysledny_text
+
+
+########## DATA PRO TOKENY
+
+### průměrná délka slabik v počtu fonémů, seřazeno od jednoslabičných po n-slabičné (maximální hodnota n je daná konkrétním textem)
+prumerna_delka_slabik 
+
+### zaokrouhlení předchozích hodnot  na dvě desetinná místa
+round(prumerna_delka_slabik, digits = 2)  
+
+### frekvence jednotlivých x-slabičných taktů, seřazeno od jednoslabičných po n-slabičné takty
+frekvence_delek_slabik  
+
+########## DATA PRO TYPY
+
+### průměrná délka slabik v počtu fonémů, seřazeno od jednoslabičných po n-slabičné (maximální hodnota n je daná konkrétním textem)
+prumerna_delka_slabik_types
+
+### zaokrouhlení předchozích hodnot  na dvě desetinná místa
+round(prumerna_delka_slabik_types, digits = 2) 
+
+### frekvence jednotlivých x-slabičných taktů, seřazeno od jednoslabičných po n-slabičné takty
+frekvence_delek_slabik_types 
+
+############################################################################################################################################################
+
+### možnost automatického uložení segmentovaného textu: je třeba a) smazat mřížku # před příkazem, b) vyplnit cestu ke složce, do níž má být text uložen, c) za název složky a lomítko vložit název dokumentu, který má vzniknout s příponou .txt (pozor na správný směr lomítek!)
+#write.table(vysledny_text,file="D:/nazev_slozky/nazev_souboru.txt", quote=F)
+

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>Resume - Start Bootstrap Theme</title>
+        <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico" />
+        <!-- Font Awesome icons (free version)-->
+        <script src="https://use.fontawesome.com/releases/v5.13.0/js/all.js" crossorigin="anonymous"></script>
+        <!-- Google fonts-->
+        <link href="https://fonts.googleapis.com/css?family=Saira+Extra+Condensed:500,700" rel="stylesheet" type="text/css" />
+        <link href="https://fonts.googleapis.com/css?family=Muli:400,400i,800,800i" rel="stylesheet" type="text/css" />
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="css/styles.css" rel="stylesheet" />
+    </head>
+    <body id="page-top">
+        <!-- Navigation-->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top" id="sideNav">
+            <a class="navbar-brand js-scroll-trigger" href="#page-top">
+                <span class="d-block d-lg-none">TaktCzech</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=#"navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link js-scroll-trigger" href="#about">Co je TaktCzech</a></li>
+                    <li class="nav-item"><a class="nav-link js-scroll-trigger" href="#experience">Teoretická východiska</a></li>
+                    <li class="nav-item"><a class="nav-link js-scroll-trigger" href="#education">Úprava textu před segmentací</a></li>
+                    <li class="nav-item"><a class="nav-link js-scroll-trigger" href="#skills">Příprava textu</a></li>
+                    <li class="nav-item"><a class="nav-link js-scroll-trigger" href="#interests">Návod na spuštění programu</a></li>
+                    <li class="nav-item"><a class="nav-link js-scroll-trigger" href="#awards">Kontakty</a></li>
+                </ul>
+            </div>
+        </nav>
+        <!-- Page Content-->
+        <div class="container-fluid p-0">
+            <!-- About-->
+            <section class="resume-section" id="about">
+                <div class="resume-section-content">
+                    <h1 class="mb-0">
+                       
+                        <span class="text-primary">TaktCzech<span>
+                    </h1>
+                    <div class="subheading mb-5">
+                        Automatická segmentace textu na přízvukové takty
+                        <a href="mailto:name@email.com"></a>
+                    </div>
+					<div class="subheading mb-5">
+                        <b>Projekt vznikl s podporou grantu Moravskoslezského kraje Podpora talentovaných studentů doktorského studia na Ostravské univerzitě III (07359/2019/RRC).</b>
+                    </div>
+                    <p class="lead mb-5", style="text-align: justify">Program TaktCzech slouží k automatické segmentaci českého psaného textu na přízvukové takty. Přízvukový (mluvní) takt je jednotka zvukové roviny jazyka definovaná jako skupina slabik s jedním slovním přízvukem. Program určí v psaném textu hranice těchto jednotek a jeho výstupem je text s vyznačenými hranicemi přízvukových taktů. TaktCzech je napsán v programovacím jazyce R a skrz něj je také třeba program spustit.</p>
+					<p style="text-align: justify"> <b>Důležité upozornění:</b>
+					<br>Aktuální verze programu je funkční betaverze, kterou je třeba testovat na co největším množství textů. Z tohoto důvodu budu ráda za jakoukoliv zpětnou vazbu, jak program funguje či zda dochází k nějakým chybám.</br></p>
+
+                    
+                </div>
+            </section>
+            <hr class="m-0" />
+            <!-- Experience-->
+            <section class="resume-section" id="experience">
+                <div class="resume-section-content">
+                    <h2 class="mb-5">Teoretická východiska</h2>
+                    <div class="d-flex flex-column flex-md-row justify-content-between mb-5">
+                        <div class="flex-grow-1">
+                            <p class="lead mb-5", style="text-align: justify">Při definování segmentačních pravidel jsem vycházela z práce Zdeny Palkové. Ta pro potřeby syntézy řeči stanovila systém formálních pravidel pro definování hranic taktu v psaném textu, na jejichž podkladě pak bylo možné vytvořit program, který provádí automatickou segmentaci na přízvukové takty. Pro ilustraci zde uvedu několik příkladů, jak jsou hranice taktů určovány, podrobně jsou pravidla Palkové popsána v článku: 
+							<br> <br></br> <b>Palková, Z. (2004). The set of phonetic rules as a basis for the prosodic component of an automatic TTS synthesis in Czech. In: Z. Palková & J. Janíková (Eds.), Phonetica Pragensia 10 (pp. 33–46). Praha: Karolinum.</b></br>
+							<p class="lead mb-5", style="text-align: justify">
+							<b>Příklady segmentace </b>(hranice taktů jsou naznačeny mřížkou): 
+							<blockquote>1) Jednoslabičné předložky: připojení předložky k následujícímu slovu:
+								<br>&#160 &#160 &#160 &#160 &#160 Přišel #pod okno.#</br></blockquote>
+							<blockquote>2)	Jednoslabičné slovo stojící na začátku klauze: připojení k následujícímu slovu:
+								<br>&#160 &#160 &#160 &#160 &#160 #On přišel# pozdě.</br></blockquote>
+							<blockquote>4)	Víceslabičná slova stojící vedle sebe: tvoří samostatné takty:
+								<br>&#160 &#160 &#160 &#160 &#160 #Přišel# #pozdě# #večer.#</blockquote>
+							<blockquote>3)	Dvě jednoslabičná slova v pozici mezi víceslabičnými slovy:
+							<br>&#160 &#160 &#160 a)	předcházející slovo obsahuje 2–4 slabiky: připojení k předchozímu slovu:</br>
+							&#160 &#160 &#160 &#160 &#160 &#160 #Při-šel jsem tam# pozdě.
+							<br>&#160 &#160 &#160 b)	předcházející slovo obsahuje 5 a více slabik: tvoří samostatný takt:</br>
+							&#160 &#160 &#160 &#160 &#160 &#160 Ne-za-mý-šle-li #jsme tam# koupit pivo.</blockquote>
+							<blockquote>5)	atd.</blockquote>
+							</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <hr class="m-0" />
+            <!-- Education-->
+            <section class="resume-section" id="education">
+                <div class="resume-section-content">
+                    <h2 class="mb-5">Úprava textu před segmentací</h2>
+                    <div class="d-flex flex-column flex-md-row justify-content-between mb-5">
+                        <div class="flex-grow-1">
+                            <p class="lead mb-5", style="text-align: justify">Před vložením vybraného textu do programu je zapotřebí vytvořit pracovní verzi textu. Jedná se o řekněme „čistý“ text bez přebytečných znaků, písmen cizí abecedy, číslic, zkratek atp.
+Některé z kroků uvedené níže v Přípravě textu mohou mít různá řešení (např. číslice je možné jednoduše automaticky smazat a ušetřit čas s jejich přepisováním, i když se jedná o dosti kompromisní řešení; znaky cizí abecedy lze přepisovat různě). Výběr konkrétního řešení záleží na výzkumném záměru a je na rozhodnutí výzkumníka, jakou možnost zvolí. Avšak aby program mohl správně pracovat, je zapotřebí dodržet <b>základní pravidla</b>:
+
+	<ul><blockquote>1) v textu mohou zůstat pouze interpunkční znaménka: tečka, čárka, středník, dvojtečka, vykřičník a otazník</blockquote>
+	<blockquote>2) text nesmí obsahovat znaky neobsažené v české abecedě</blockquote>
+	<blockquote>3) text nesmí obsahovat číslice</blockquote>
+	<blockquote>4) text nesmí obsahovat jednu samostatně stojící souhlásku – s výjimkou neslabičných předložek k, s, v, z.</blockquote>
+	<blockquote>5) text nesmí obsahovat znaky a symboly typu: $, %, =, °C</blockquote>
+	<blockquote>6) text nesmí obsahovat dvojité (trojité atd.) mezery</blockquote>
+	<blockquote>7) nesmí obsahovat více interpunkčních znamének stojících bezprostředně vedle sebe ani oddělených mezerou</blockquote>
+	<blockquote>8) před interpunkčním znaménkem nesmí být mezera.</blockquote></ul>
+ </p>       
+                    </div>
+                </div>
+				</div>
+            </section>
+            <hr class="m-0" />
+            <!-- Skills-->
+            <section class="resume-section" id="skills">
+                <div class="resume-section-content">
+                    <h2 class="mb-5">Příprava textu</h2>
+                    <p class="lead mb-5", style="text-align: justify">
+					<blockquote>1)	Používejte soubor s příponou .txt </blockquote>
+					<blockquote>2)	pracujte s ním v textovém editoru (ideálně Notepad++)</blockquote>
+					<blockquote>3)	text uložte ve formátování ANSI </blockquote>
+					<blockquote>4)	vzhledem k homonymním tvarům zvratného zájmena se a vokalizované předložky se, je zapotřebí rozlišit tato dvě slova v textu ručně
+					<ul><li>vyhledejte všechna se – jedná-li se o předložku, připojte ji bez mezery k následujícímu slovu</li>
+					<li>	např.: přišel se dvěma bratry &#8594 přišel sedvěma bratry</ul></li></blockquote>
+					<blockquote>5)	číslice rozepište do textové (skloňované) podoby
+					<ul><li>	např.: 1415 &#8594 čtrnáct set patnáct</li>
+					<li>	např.: se 3 míči &#8594 se třemi míči</ul></li></blockquote>
+					<blockquote>6)	symboly rozepište do textové (skloňované) podoby
+					<ul><li>	např.: °C &#8594 stupňů celsia</li>
+					<li>	např.: 5 $ &#8594 pět dolarů</ul></li></blockquote>
+					<blockquote>7)	veškeré typy uvozovek smažte</ul></li>
+					<ul><li>	stojí-li uvozovka na konci věty bez další interpunkce, je vhodné nahradit ji tečkou</ul></li>
+					<blockquote>8)	pomlčku nahraďte čárkami</ul></li>
+					<ul><li>	např.: …přijdu – zarazil se… &#8594 …přijdu, zarazil se… </li>
+					<li>	stojí-li pomlčka na konci věty bez další interpunkce, je vhodné nahradit ji tečkou</ul></li></blockquote>
+					<blockquote>9)	spojovník nahraďte mezerou</ul></li>
+					<ul><li>	např.: víš-li &#8594 víš li</ul></li>
+					<blockquote>10)	apostrofy všeho druhu smažte</ul></li>
+					<blockquote>11)	grafémy cizí abecedy nahraďte blízkým grafémem z abecedy české
+					<ul><li>	např. ß &#8594 s</ul></li>
+					<blockquote>12)	 závorky nahraďte čárkami</ul></li>
+					<ul><li>	např.: Zavolal mu (už to nemohl vydržet) a zeptal se… &#8594 Zavolal mu, už to nemohl vydržet, a zeptal se…</ul></li>
+					<blockquote>13)	zkratky rozepište do vyslovované podoby</ul></li>
+					<ul><li>	T.G.M. &#8594 té gé em</li>
+					<li>	SPZ &#8594 es pé zet</li>
+					<li>	kč &#8594 korun českých / ká čé / korun</ul></li></blockquote>
+					<blockquote>14)	 po smazání znaků obvykle v textu zůstane trochu „nepořádek“ – např. dvojité i trojité mezery, kombinace několika interpunkčních znamének za sebou atp.</ul></li>
+					<ul><li>	na závěr vždy zkontrolovat a opravit, aby se v textu nevyskytovaly situace:</li>
+						<ul><li>	více než 1 mezera vedle sebe</ul></li>
+						<ul><li>	více než 1 interpunkční znaménko vedle sebe (ani oddělené mezerou)</ul></li>
+						<ul><li>	mezera před interpunkčním znaménkem</ul></li>
+					</ul>
+                    </p>
+            </section>
+            <hr class="m-0" />
+            <!-- Interests-->
+            <section class="resume-section" id="interests">
+                <div class="resume-section-content">
+                    <h2 class="mb-5">Návod na spuštění programu</h2>
+                    <p class="lead mb-5", style="text-align: justify">
+					<blockquote>1)	Pro spuštění programu je třeba mít v počítači nainstalováno speciální prostředí, které umožňuje program spustit. Doporučuji stáhnout si free verzi RStudia, a to z těchto stránek:
+						&#160 https://rstudio.com/products/rstudio/download/</blockquote>
+					<blockquote>2)	Dále je třeba stáhnout TaktCzech samotný, tedy text programu, kód. Ten naleznete zde: <a href="taktczech.zip" >TaktCzech</a> </blockquote>
+					<blockquote>3)	Po nainstalování RStudia jej spusťte a otevřete v něm nový soubor: File&#8594 New file &#8594 R Script. Objeví se prostor pro vepsání/vložení kódu. Zde vložte zkopírovaný text programu.</blockquote>
+					<blockquote>4)	Dále je třeba celý text programu označit – buď myší nebo po kliknutí kamkoliv do textu programu klávesovou zkratkou CTRL+A.</blockquote>
+					<blockquote>5)	Nyní můžete program spustit.</blockquote>
+						a)	stisknutím tlačítka Run v pravém horním rohu souboru
+						b)	klávesovou zkratkou CTRL+Enter.
+						Poznámka: spustí se vždy jen označená část programu.</blockquote>
+					<blockquote>6)	Program vás vyzve k vybrání souboru, který má být segmentován – najděte tedy složku se svou připravenou pracovní verzí textu a otevřete jej v programu.</blockquote>
+					<blockquote>7)	Napjatě čekejte…</blockquote>
+					<blockquote>8)	Program text segmentuje a výsledek vám může poskytnout ve dvou základních podobách (v případě že budete potřebovat jiný typ zobrazení, kontaktujte mě na uvedené emailové adrese a pokusíme se nalézt vhodné řešení).
+						<br>&#160 &#160 &#160 a)	segmentovaný text se zobrazí přímo v prostředí RStudia, odkud je možné jej vykopírovat;</br>
+						&#160 &#160 &#160 b)	uloží segmentovaný text jako textový soubor do vámi vybrané složky v počítači.</blockquote>
+					<blockquote>9)	Výsledná podoba segmentovaného textu: hranice mluvních taktů jsou označeny znakem $, aby zůstaly zachovány hranice mezi slovy ortografickými. (Lze ale program případně upravit, aby spojil bez mezer slova tvořící jeden mluvní takt.)</blockquote>
+					<blockquote>10)	Pokud jste zvolili v předchozí otázce možnost b), je třeba dodržet následující postup:</blockquote>
+						<ul>
+						<li>najděte v RStudiu poslední řádek kódu (č. *XY*)</li>
+						<li>na začátku řádku smažte mřížku (text na řádku by se měl změnit z kurzívy na normální typ písma)</li>
+						<li>*nemůžu přijít na to, jak uložit soubor tak, abych si mohla vybrat adresář…*</li>
+						</ul>
+						</blockquote>
+</p>
+                </div>
+            </section>
+            <hr class="m-0" />
+            <!-- Awards-->
+            <section class="resume-section" id="awards">
+                <div class="resume-section-content">
+                    <h2 class="mb-5">Kontakty</h2>
+                    <p class="fa-ul mb-0">
+						<p class="lead mb-5", style="text-align: justify">
+						<b>Kateřina Pelegrinová</b>
+						<br>Katedra českého jazyka, Ostravská univerzita</br>
+						
+						</p>
+                        <p class="lead mb-5", style="text-align: justify"> 
+						Veškeré dotazy, připomínky či komentáře prosím zasílejte na adresu: 
+						<br> <b> pelegrinovak@gmail.com </b></br>
+						
+						
+						</p>
+                </div>
+            </section>
+        </div>
+        <!-- Bootstrap core JS-->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js"></script>
+        <!-- Third party plugin JS-->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
+        <!-- Core theme JS-->
+        <script src="js/scripts.js"></script>
+    </body>
+</html>
